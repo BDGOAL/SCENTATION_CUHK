@@ -449,6 +449,21 @@ const App = () => {
                     </div>
                 )}
 
+                {/* CUHK Logo on result page */}
+                {currentPage === 'result' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        zIndex: 10,
+                        width: '75%',
+                        left: '12.5%'
+                    }}>
+                        <img src={cuhkLogo} 
+                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
+                             alt="CUHK Wellness Centre" />
+                    </div>
+                )}
+
                 {/* Language Switcher */}
                 {currentPage !== 'result' && (
                     <div style={{
@@ -744,82 +759,181 @@ const App = () => {
 
                 {/* Result Page */}
                 {currentPage === 'result' && result && (
-                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                        {/* Title: 你的身體在說 */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '400px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '90px' : '110px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>{t.result.title}</div>
-
-                        {/* Body Says Text */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '580px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '60px',
-                            lineHeight: '1.3', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
-                        }}>{currentLang === 'zh-TW' ? result.bodySaysCN : result.bodySaysEN}</div>
-
-                        {/* Scent Section Title */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '820px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '60px' : '70px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>{currentLang === 'zh-TW' ? t.result.scentTitle : t.result.scentSubtitle}</div>
-
-                        {/* Scent Type */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '940px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px',
-                            textAlign: 'center', color: '#FFFFFF'
-                        }}>{currentLang === 'zh-TW' ? result.scentCN : result.scentEN}</div>
-
-                        {/* Products */}
-                        <div style={{
-                            position: 'absolute', width: '1500px', left: 'calc(50% - 750px)', top: '1080px',
-                            display: 'flex', flexDirection: 'column', gap: '40px'
+                    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                        {/* 內容層 */}
+                        <div style={{ 
+                            position: 'relative',
+                            zIndex: 2,
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            paddingTop: '276px',
+                            paddingBottom: '100px'
                         }}>
-                            {result.products.map((p, idx) => (
-                                <div key={idx} style={{
-                                    background: 'rgba(255,255,255,0.1)', borderRadius: '20px',
-                                    padding: '30px 40px', border: '2px solid #B8860B'
+                            {/* Walk with You Icon in Circle */}
+                            <div style={{
+                                width: '600px',
+                                height: '600px',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                border: '8px solid #D4AF37',
+                                marginBottom: '40px',
+                                boxShadow: '0 0 40px rgba(212, 175, 55, 0.5)',
+                                background: '#FFFFFF',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <img src={walkWithYouLogo} style={{ width: '80%', height: 'auto', objectFit: 'contain' }} alt="Walk with You" />
+                            </div>
+
+                            {/* 標題：你的身體在說 */}
+                            <div style={{ 
+                                fontFamily: "'Inter', sans-serif", 
+                                fontWeight: 700, 
+                                fontSize: currentLang === 'en' ? '88px' : '105px', 
+                                textAlign: 'center', 
+                                color: '#D4AF37', 
+                                marginBottom: '20px' 
+                            }}>
+                                {t.result.title}
+                            </div>
+                            <div style={{ width: '779px', height: '0', border: '6px solid #D4AF37', marginBottom: '40px' }}></div>
+
+                            {/* 身體在說的話 */}
+                            <div style={{ 
+                                width: currentLang === 'en' ? '1488px' : '1188px', 
+                                fontFamily: "'Inter', sans-serif", 
+                                fontSize: currentLang === 'en' ? '46px' : '55px', 
+                                textAlign: 'center', 
+                                color: '#B8860B', 
+                                fontStyle: 'italic',
+                                marginBottom: '60px'
+                            }}>
+                                {currentLang === 'zh-TW' ? result.bodySaysCN : result.bodySaysEN}
+                            </div>
+
+                            {/* 推薦標題 */}
+                            <div style={{ 
+                                width: '1412px', 
+                                height: '115px', 
+                                background: '#D4AF37', 
+                                borderRadius: '25px 25px 0 0', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                fontFamily: "'Inter', sans-serif", 
+                                fontWeight: 700, 
+                                fontSize: currentLang === 'en' ? '54px' : '64px', 
+                                color: '#FFFFFF',
+                                flexShrink: 0
+                            }}>
+                                {currentLang === 'zh-TW' ? t.result.scentTitle : t.result.scentSubtitle}
+                            </div>
+
+                            {/* 產品容器 */}
+                            <div style={{ 
+                                width: '1412px', 
+                                boxSizing: 'border-box', 
+                                border: '6px solid #D4AF37', 
+                                borderRadius: '0 0 25px 25px',
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                padding: '50px 70px',
+                                background: 'rgba(26, 26, 26, 0.8)',
+                                marginBottom: '60px'
+                            }}>
+                                {/* 香調名稱 */}
+                                <div style={{ 
+                                    fontFamily: "'Inter', sans-serif", 
+                                    fontSize: currentLang === 'en' ? '56px' : '70px',
+                                    fontWeight: 700,
+                                    textAlign: 'center', 
+                                    color: '#FFFFFF',
+                                    marginBottom: '60px'
                                 }}>
-                                    <div style={{
-                                        fontFamily: "'Inter', sans-serif", fontWeight: 600,
-                                        fontSize: '42px', color: '#B8860B', marginBottom: '15px'
-                                    }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
-                                    <div style={{
-                                        fontFamily: "'Inter', sans-serif", fontSize: '36px',
-                                        color: '#FFFFFF', lineHeight: '1.4'
-                                    }}>{currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}</div>
+                                    {currentLang === 'zh-TW' ? result.scentCN : result.scentEN}
                                 </div>
-                            ))}
+
+                                {/* 產品卡片 */}
+                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: '100px', width: '100%' }}>
+                                    {result.products.map((p, i) => (
+                                        <div key={i} style={{ 
+                                            width: '520px', 
+                                            background: '#D4AF37', 
+                                            borderRadius: '25px', 
+                                            padding: '30px', 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center' 
+                                        }}>
+                                            <div style={{ 
+                                                fontFamily: "'Inter', sans-serif", 
+                                                fontWeight: 700, 
+                                                fontSize: currentLang === 'en' ? '45px' : '50px', 
+                                                color: '#FFFFFF', 
+                                                textAlign: 'center',
+                                                marginBottom: '20px'
+                                            }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
+                                            <div style={{ 
+                                                fontFamily: "'Inter', sans-serif", 
+                                                fontSize: currentLang === 'en' ? '36px' : '40px', 
+                                                lineHeight: '1.4', 
+                                                color: '#FFFFFF', 
+                                                textAlign: 'center', 
+                                                whiteSpace: 'pre-wrap', 
+                                                wordWrap: 'break-word'
+                                            }}>
+                                                {currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 小叮嚀標題 */}
+                            <div style={{ 
+                                fontFamily: "'Inter', sans-serif", 
+                                fontWeight: 700, 
+                                fontSize: currentLang === 'en' ? '70px' : '80px', 
+                                textAlign: 'center', 
+                                color: '#D4AF37', 
+                                marginBottom: '30px' 
+                            }}>
+                                {t.result.reminderTitle}
+                            </div>
+
+                            {/* 小叮嚀內容 */}
+                            <div style={{ 
+                                width: currentLang === 'en' ? '1488px' : '1188px', 
+                                fontFamily: "'Inter', sans-serif", 
+                                fontSize: currentLang === 'en' ? '42px' : '50px', 
+                                textAlign: 'center', 
+                                color: '#FFFFFF', 
+                                whiteSpace: 'pre-wrap', 
+                                wordWrap: 'break-word',
+                                marginBottom: '60px',
+                                lineHeight: '1.4'
+                            }}>
+                                {currentLang === 'zh-TW' ? result.reminderCN : result.reminderEN}
+                            </div>
+
+                            {/* 底部按鈕 */}
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', marginTop: '20px' }}>
+                                <button onClick={restartQuiz} style={{ 
+                                    width: currentLang === 'en' ? '640px' : '540px', 
+                                    height: '123px', 
+                                    background: '#D4AF37', 
+                                    borderRadius: '25px', 
+                                    border: 'none', 
+                                    fontFamily: "'Inter', sans-serif", 
+                                    fontWeight: 700, 
+                                    fontSize: currentLang === 'en' ? '60px' : '70px', 
+                                    color: '#FFFFFF' 
+                                }}>{t.result.restart}</button>
+                            </div>
                         </div>
-
-                        {/* Reminder Section Title */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '1550px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '60px' : '70px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>{t.result.reminderTitle}</div>
-
-                        {/* Reminder Text */}
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '1670px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '42px' : '50px',
-                            lineHeight: '1.5', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
-                        }}>{currentLang === 'zh-TW' ? result.reminderCN : result.reminderEN}</div>
-
-                        {/* Restart Button */}
-                        <button onClick={restartQuiz} style={{
-                            position: 'absolute', width: '600px', height: '150px',
-                            left: 'calc(50% - 300px)', bottom: '200px',
-                            background: '#B8860B', borderRadius: '25px', border: 'none',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '60px' : '70px', color: '#FFFFFF'
-                        }}>{t.result.restart}</button>
                     </div>
                 )}
             </div>
