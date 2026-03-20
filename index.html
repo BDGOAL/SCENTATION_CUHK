@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SCENTATION - CUHK Wellness Centre</title>
+<title>Walk with You - CUHK Wellness Centre</title>
 
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -114,13 +114,128 @@ setTimeout(updateLayout, 300);
 const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
 const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
 const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
+const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
 
 const questionImages = {
-    q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/1.png',
-    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/2.png',
-    q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/3.png',
-    q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/4.png',
+    q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6857474.jpg',
+    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/4323542.jpg',
+    q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/419376795_3dc97a2e-e860-4c60-8f1a-9d615fd392bf.jpg',
+    q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6731011.jpg',
     intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
+};
+
+// 結果數據 - 根據A選項數量
+const wellnessResults = {
+    '4A': {
+        bodySaysCN: '「我像一根被拉緊的琴弦，需要好好放鬆一下」',
+        bodySaysEN: '"I feel like a tightened string; I need to relax."',
+        scentCN: '深呼吸木質調（雪松＋薰衣草）',
+        scentEN: 'Deep-breathing woody notes (Cedar + Lavender)',
+        reminderCN: '你最近真的很努力了。現在讓自己找個舒適角落，深深地呼吸，像大樹一樣好好地休息一下。',
+        reminderEN: "You've working so hard lately. Now find a comfortable corner, take a deep breath, and rest like a great tree—steady and calm.",
+        products: [
+            {
+                nameCN: 'Morning Garden Eau De Parfum',
+                nameEN: 'Morning Garden Eau De Parfum',
+                descriptionCN: 'lavender, rosemary, eucalyptus, and cedarwood',
+                descriptionEN: 'lavender, rosemary, eucalyptus, and cedarwood'
+            },
+            {
+                nameCN: "Men's Garage Parfum 100ml",
+                nameEN: "Men's Garage Parfum 100ml",
+                descriptionCN: 'lavender, thyme, patchouli, and leather',
+                descriptionEN: 'lavender, thyme, patchouli, and leather'
+            }
+        ]
+    },
+    '3A': {
+        bodySaysCN: '「我有點疲憊，需要一個溫暖的擁抱。」',
+        bodySaysEN: '"I\'m a bit tired, I need a warm hug."',
+        scentCN: '療癒花香調（洋甘菊＋依蘭）',
+        scentEN: 'Healing Floral Notes (Chamomile + Ylang-Ylang)',
+        reminderCN: '看到你這樣打拼，心裡真的好為你感動。讓這香氣成為擁抱，告訴你：「已經做很好了，值得被好好疼愛」。',
+        reminderEN: 'Seeing how hard you\'ve been striving truly moves me. Let this fragrance be a gentle embrace, reminding you: "You\'ve already put in lots of efforts. You deserve tender love."',
+        products: [
+            {
+                nameCN: 'The First Rose Parfum 100ml',
+                nameEN: 'The First Rose Parfum 100ml',
+                descriptionCN: 'rose, violet, cedarwood, and musk',
+                descriptionEN: 'rose, violet, cedarwood, and musk'
+            },
+            {
+                nameCN: 'Perfume 50ml - White Michelia',
+                nameEN: 'Perfume 50ml - White Michelia',
+                descriptionCN: 'creamy magnolia–ylang floral',
+                descriptionEN: 'creamy magnolia–ylang floral'
+            }
+        ]
+    },
+    '2A': {
+        bodySaysCN: '「我需要一點支持，但目前情況還可以。」',
+        bodySaysEN: '"I need a little support, but I\'m okay."',
+        scentCN: '平衡香草調（香草＋廣藿香）',
+        scentEN: 'Balancing Vanilla Notes (Vanilla + Patchouli)',
+        reminderCN: '你已經在很努力地平衡一切了！這香氣像一杯熱飲，溫暖剛剛好，悄悄對你「可以慢慢來，不用急著做到最好」。',
+        reminderEN: 'You\'ve been working hard to balance everything! This fragrance is like a warm drink—comforting and whispering: "Take it slow, there\'s no need to chase perfection."',
+        products: [
+            {
+                nameCN: 'Me Time Eau De Parfum',
+                nameEN: 'Me Time Eau De Parfum',
+                descriptionCN: 'vetiver, patchouli, benzoin; slightly smoky vanilla resin adds quiet depth',
+                descriptionEN: 'vetiver, patchouli, benzoin; slightly smoky vanilla resin adds quiet depth'
+            },
+            {
+                nameCN: 'The Old Library Parfum 100ml',
+                nameEN: 'The Old Library Parfum 100ml',
+                descriptionCN: 'bergamot, oud, amber, and vetiver; woody–vanillic warmth with sophistication',
+                descriptionEN: 'bergamot, oud, amber, and vetiver; woody–vanillic warmth with sophistication'
+            }
+        ]
+    },
+    '1A': {
+        bodySaysCN: '「我大致上沒問題，但還可以做得更好。」',
+        bodySaysEN: '"I\'m basically okay, but could be better."',
+        scentCN: '清新海洋調（海鹽＋薄荷）',
+        scentEN: 'Refreshing Ocean Notes (Sea Salt + Mint)',
+        reminderCN: '你處理得很好！這清新的香氣像微風輕輕吹過，喚醒你最舒服自在的那一面。',
+        reminderEN: 'You\'re handling things wonderfully! This fresh scent is like a gentle breeze, awakening your most relaxed and comfortable self.',
+        products: [
+            {
+                nameCN: 'Golden Hour Eau De Parfum',
+                nameEN: 'Golden Hour Eau De Parfum',
+                descriptionCN: 'sea salt, mint, marine, cedarwood; a nuanced oceanic blend',
+                descriptionEN: 'sea salt, mint, marine, cedarwood; a nuanced oceanic blend'
+            },
+            {
+                nameCN: 'Perfume 50ml - Ocean & Cedarwood',
+                nameEN: 'Perfume 50ml - Ocean & Cedarwood',
+                descriptionCN: 'clean marine wood accord with smooth neutral dry-down',
+                descriptionEN: 'clean marine wood accord with smooth neutral dry-down'
+            }
+        ]
+    },
+    '0A': {
+        bodySaysCN: '「我狀態不錯！還可以更有活力」',
+        bodySaysEN: '"I\'m in good shape! I could be even more energized."',
+        scentCN: '活力柑橘調（血橙＋粉紅葡萄柚）',
+        scentEN: 'Energizing Citrus Notes (Blood Orange + Pink Grapefruit)',
+        reminderCN: '你真的找到很好的節奏呢！這香氣像早晨的第一道陽光，帶著輕盈開心的感覺，繼續往前走。',
+        reminderEN: 'You\'ve truly found a great rhythm. This fragrance is like the first ray of morning sunshine, carrying a light and joyful feeling to keep you moving forward.',
+        products: [
+            {
+                nameCN: 'Evening Unwind Eau De Parfum',
+                nameEN: 'Evening Unwind Eau De Parfum',
+                descriptionCN: 'grapefruit, fig, cedarwood, amber; warm citrus',
+                descriptionEN: 'grapefruit, fig, cedarwood, amber; warm citrus'
+            },
+            {
+                nameCN: 'Perfume 50ml - Pomelo Petals',
+                nameEN: 'Perfume 50ml - Pomelo Petals',
+                descriptionCN: 'grapefruit zest and soft floral musk; crisp and uplifting',
+                descriptionEN: 'grapefruit zest and soft floral musk; crisp and uplifting'
+            }
+        ]
+    }
 };
 
 const App = () => {
@@ -128,6 +243,7 @@ const App = () => {
     const [currentLang, setCurrentLang] = useState('zh-TW');
     const [playerName, setPlayerName] = useState('');
     const [answers, setAnswers] = useState([]);
+    const [result, setResult] = useState(null);
     
     const keyboardLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -146,6 +262,14 @@ const App = () => {
                 button: '開始測試'
             },
             exit: '✕',
+            result: {
+                title: '你的身體在說',
+                scentTitle: '心理健康及輔導中心為你推薦的香調',
+                scentSubtitle: 'Recommended Scents from WACC',
+                reminderTitle: '給你的小叮嚀',
+                restart: '重新開始',
+                share: '分享結果'
+            },
             questions: [
                 {
                     id: 1,
@@ -185,8 +309,8 @@ const App = () => {
             intro: {
                 title: 'Unlock Your Scent Code',
                 subtitle: 'The Philosophy of Taste: Finding your signature scent for your extraordinary style.',
-                description: 'In the fast-paced urban rhythm, your scent defines your aura. Quickly analyze your core personality traits and receive precise recommendations for a luxury scent that highlights your unique charm.',
-                button: 'Discover Your Unique Charm'
+                description: 'In the fast-paced urban rhythm, your scent defines your aura. Quickly analyze your core personality traits and receive precise recommendations for a scent that highlights your unique charm.',
+                button: 'Discover Your Unique Scent'
             },
             nameInput: {
                 title: 'Enter Your Name',
@@ -195,6 +319,14 @@ const App = () => {
                 button: 'Start Now'
             },
             exit: '✕',
+            result: {
+                title: 'What Your Body Says',
+                scentTitle: 'Recommended Scents from WACC',
+                scentSubtitle: '心理健康及輔導中心為你推薦的香調',
+                reminderTitle: 'A Gentle Reminder for You',
+                restart: 'Restart',
+                share: 'Share'
+            },
             questions: [
                 {
                     id: 1,
@@ -234,18 +366,38 @@ const App = () => {
 
     const t = texts[currentLang];
     
-    const handleAnswer = (questionId) => {
+    const calculateResult = (allAnswers) => {
+        const aCount = allAnswers.filter(a => a === 'A').length;
+        const resultKey = `${aCount}A`;
+        return wellnessResults[resultKey];
+    };
+
+    const handleAnswer = (questionId, choice) => {
+        const newAnswers = [...answers, choice];
+        setAnswers(newAnswers);
+        
         const nextId = questionId + 1;
-        console.log('Current question:', questionId, 'Next:', nextId);
+        console.log('Question:', questionId, 'Choice:', choice, 'Answers:', newAnswers);
         
         if (nextId <= 4) {
             setTimeout(() => {
-                console.log('Moving to page:', nextId);
                 setCurrentPage(nextId);
             }, 300);
         } else {
-            alert('測驗完成！（結果頁面待開發）');
+            // 計算結果
+            const finalResult = calculateResult(newAnswers);
+            setResult(finalResult);
+            setTimeout(() => {
+                setCurrentPage('result');
+            }, 300);
         }
+    };
+
+    const restartQuiz = () => {
+        setAnswers([]);
+        setResult(null);
+        setPlayerName('');
+        setCurrentPage('intro');
     };
 
     return (
@@ -267,60 +419,79 @@ const App = () => {
                 boxShadow: '0px 0px 39.9px 1px #D4AF37',
                 borderRadius: '35px',
             }}>
-                {/* CUHK Logo */}
-                <div style={{
-                    position: 'absolute',
-                    top: '20px',
-                    zIndex: 10,
-                    width: '75%',
-                    left: '12.5%'
-                }}>
-                    <img src={cuhkLogo} 
-                         style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
-                         alt="CUHK Wellness Centre" />
-                </div>
+                {/* CUHK Logo (all pages except result) */}
+                {currentPage !== 'result' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        zIndex: 10,
+                        width: '75%',
+                        left: '12.5%'
+                    }}>
+                        <img src={cuhkLogo} 
+                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
+                             alt="CUHK Wellness Centre" />
+                    </div>
+                )}
+
+                {/* Walk with You Logo (result page only) */}
+                {currentPage === 'result' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '50px',
+                        zIndex: 10,
+                        width: '500px',
+                        left: 'calc(50% - 250px)'
+                    }}>
+                        <img src={walkWithYouLogo} 
+                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
+                             alt="Walk with You" />
+                    </div>
+                )}
 
                 {/* Language Switcher */}
-                <div style={{
-                    position: 'absolute',
-                    width: '553.5px',
-                    height: '108px',
-                    right: currentPage === 'intro' ? '80px' : '60px',
-                    bottom: '80px',
-                    zIndex: 50
-                }}>
-                    <div style={{ position: 'absolute', width: '266px', height: '108px', left: 0, top: 0 }}>
-                        <div style={{
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '25px',
-                            background: currentLang === 'zh-TW' ? '#B8860B' : '#383838'
-                        }}></div>
-                        <button onClick={() => setCurrentLang('zh-TW')} style={{
-                            position: 'absolute', width: '100%', height: '100%',
-                            background: 'transparent', border: 'none', color: '#FFF',
-                            fontSize: '50px', fontFamily: "'Inter', sans-serif"
-                        }}>繁體</button>
+                {currentPage !== 'result' && (
+                    <div style={{
+                        position: 'absolute',
+                        width: '553.5px',
+                        height: '108px',
+                        right: currentPage === 'intro' ? '80px' : '60px',
+                        bottom: '80px',
+                        zIndex: 50
+                    }}>
+                        <div style={{ position: 'absolute', width: '266px', height: '108px', left: 0, top: 0 }}>
+                            <div style={{
+                                position: 'absolute',
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '25px',
+                                background: currentLang === 'zh-TW' ? '#B8860B' : '#383838'
+                            }}></div>
+                            <button onClick={() => setCurrentLang('zh-TW')} style={{
+                                position: 'absolute', width: '100%', height: '100%',
+                                background: 'transparent', border: 'none', color: '#FFF',
+                                fontSize: '50px', fontFamily: "'Inter', sans-serif"
+                            }}>繁體</button>
+                        </div>
+                        <div style={{ position: 'absolute', width: '266px', height: '108px', left: '286px', top: 0 }}>
+                            <div style={{
+                                position: 'absolute',
+                                width: '100%',
+                                height: '100%',
+                                borderRadius: '25px',
+                                background: currentLang === 'en' ? '#B8860B' : '#383838'
+                            }}></div>
+                            <button onClick={() => setCurrentLang('en')} style={{
+                                position: 'absolute', width: '100%', height: '100%',
+                                background: 'transparent', border: 'none', color: '#FFF',
+                                fontSize: '50px', fontFamily: "'Inter', sans-serif"
+                            }}>English</button>
+                        </div>
                     </div>
-                    <div style={{ position: 'absolute', width: '266px', height: '108px', left: '286px', top: 0 }}>
-                        <div style={{
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '25px',
-                            background: currentLang === 'en' ? '#B8860B' : '#383838'
-                        }}></div>
-                        <button onClick={() => setCurrentLang('en')} style={{
-                            position: 'absolute', width: '100%', height: '100%',
-                            background: 'transparent', border: 'none', color: '#FFF',
-                            fontSize: '50px', fontFamily: "'Inter', sans-serif"
-                        }}>English</button>
-                    </div>
-                </div>
+                )}
 
                 {/* Exit Button */}
-                {currentPage !== 'intro' && currentPage !== 'nameInput' && (
+                {currentPage !== 'intro' && currentPage !== 'nameInput' && currentPage !== 'result' && (
                     <div style={{ position: 'absolute', left: '74px', top: '71px', zIndex: 52 }}>
                         <div style={{
                             position: 'absolute', width: '132px', height: '132px',
@@ -534,7 +705,7 @@ const App = () => {
                                     position: 'absolute', left: '0px', top: '10px',
                                     width: '120px', transform: 'scale(1.2)'
                                 }} alt="Option A" />
-                                <button onClick={() => handleAnswer(qId)} style={{
+                                <button onClick={() => handleAnswer(qId, 'A')} style={{
                                     position: 'absolute', left: '160px', width: '1288px',
                                     height: currentLang === 'en' ? '260px' : '245px',
                                     border: '6px solid #FFF', borderRadius: '25px',
@@ -555,7 +726,7 @@ const App = () => {
                                     position: 'absolute', left: '0px', top: '10px',
                                     width: '120px', transform: 'scale(1.2)'
                                 }} alt="Option B" />
-                                <button onClick={() => handleAnswer(qId)} style={{
+                                <button onClick={() => handleAnswer(qId, 'B')} style={{
                                     position: 'absolute', left: '160px', width: '1288px',
                                     height: currentLang === 'en' ? '260px' : '242px',
                                     border: '6px solid #FFF', borderRadius: '25px',
@@ -570,6 +741,87 @@ const App = () => {
                         </div>
                     );
                 })}
+
+                {/* Result Page */}
+                {currentPage === 'result' && result && (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        {/* Title: 你的身體在說 */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '400px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '90px' : '110px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>{t.result.title}</div>
+
+                        {/* Body Says Text */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '580px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '60px',
+                            lineHeight: '1.3', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
+                        }}>{currentLang === 'zh-TW' ? result.bodySaysCN : result.bodySaysEN}</div>
+
+                        {/* Scent Section Title */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '820px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '60px' : '70px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>{currentLang === 'zh-TW' ? t.result.scentTitle : t.result.scentSubtitle}</div>
+
+                        {/* Scent Type */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '940px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px',
+                            textAlign: 'center', color: '#FFFFFF'
+                        }}>{currentLang === 'zh-TW' ? result.scentCN : result.scentEN}</div>
+
+                        {/* Products */}
+                        <div style={{
+                            position: 'absolute', width: '1500px', left: 'calc(50% - 750px)', top: '1080px',
+                            display: 'flex', flexDirection: 'column', gap: '40px'
+                        }}>
+                            {result.products.map((p, idx) => (
+                                <div key={idx} style={{
+                                    background: 'rgba(255,255,255,0.1)', borderRadius: '20px',
+                                    padding: '30px 40px', border: '2px solid #B8860B'
+                                }}>
+                                    <div style={{
+                                        fontFamily: "'Inter', sans-serif", fontWeight: 600,
+                                        fontSize: '42px', color: '#B8860B', marginBottom: '15px'
+                                    }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
+                                    <div style={{
+                                        fontFamily: "'Inter', sans-serif", fontSize: '36px',
+                                        color: '#FFFFFF', lineHeight: '1.4'
+                                    }}>{currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Reminder Section Title */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '1550px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '60px' : '70px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>{t.result.reminderTitle}</div>
+
+                        {/* Reminder Text */}
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 700px)', top: '1670px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '42px' : '50px',
+                            lineHeight: '1.5', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
+                        }}>{currentLang === 'zh-TW' ? result.reminderCN : result.reminderEN}</div>
+
+                        {/* Restart Button */}
+                        <button onClick={restartQuiz} style={{
+                            position: 'absolute', width: '600px', height: '150px',
+                            left: 'calc(50% - 300px)', bottom: '200px',
+                            background: '#B8860B', borderRadius: '25px', border: 'none',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '60px' : '70px', color: '#FFFFFF'
+                        }}>{t.result.restart}</button>
+                    </div>
+                )}
             </div>
         </div>
     );
