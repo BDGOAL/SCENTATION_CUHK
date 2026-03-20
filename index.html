@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SCENTATION - CUHK Wellness Assessment</title>
+<title>SCENTATION - CUHK Wellness Centre</title>
 
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 * { box-sizing: border-box; }
 
-/* 全局設定 */
 body, html {
     margin: 0; padding: 0;
     background-color: #1A1A1A;
@@ -24,16 +22,12 @@ body, html {
     overflow: hidden;
 }
 
-/* 隱藏滾動條但保留滾動功能 */
-body::-webkit-scrollbar {
-    display: none;
-}
+body::-webkit-scrollbar { display: none; }
 body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-/* 內容主容器 */
 #root { 
     width: 2160px; height: 3840px; 
     background-color: #1A1A1A;
@@ -44,7 +38,6 @@ button { cursor: pointer; transition: opacity 0.1s; }
 button:active { opacity: 0.8; }
 button:focus { outline: none; }
 
-/* 載入畫面 */
 #loading {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #1A1A1A; color: #B8860B;
@@ -53,7 +46,6 @@ button:focus { outline: none; }
     z-index: 9999;
 }
 
-/* 錯誤提示 */
 #fatal-error {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.9); color: #ff5555; z-index: 100000;
@@ -71,13 +63,12 @@ button:focus { outline: none; }
         document.getElementById('loading').style.display = 'none';
         const err = document.getElementById('fatal-error');
         err.style.display = 'block';
-        err.innerHTML = "⚠️ System Error:\\n" + msg + "\\nLine: " + line;
+        err.innerHTML = "⚠️ System Error:\n" + msg + "\nLine: " + line;
     };
 </script>
 
 <script type="text/babel">
-const { useState, useCallback, useEffect, useRef } = React;
-const getBaseUrl = () => window.location.href.split('?')[0];
+const { useState, useCallback } = React;
 
 // --- 排版引擎 ---
 const updateLayout = () => {
@@ -100,10 +91,9 @@ const updateLayout = () => {
         root.style.transformOrigin = 'top left';
         root.style.transform = `scale(${scale})`;
     } else {
-        body.style.overflow = 'auto';
-        const scaleW = screenW / targetW;
-        const scaleH = screenH / targetH;
-        const scale = Math.min(scaleW, scaleH) * 0.85;
+        body.style.overflow = 'hidden';
+        body.style.height = '100%';
+        const scale = Math.min(screenW / targetW, screenH / targetH);
         root.style.position = 'absolute';
         root.style.left = '50%';
         root.style.top = '50%';
@@ -111,722 +101,475 @@ const updateLayout = () => {
         root.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
-    root.style.opacity = '1';
+    root.style.opacity = 1;
+    const loader = document.getElementById('loading');
+    if(loader) loader.style.display = 'none';
 };
 
+window.addEventListener('load', updateLayout);
 window.addEventListener('resize', updateLayout);
-window.addEventListener('orientationchange', updateLayout);
+setTimeout(updateLayout, 300);
 
-// ============================================================================
-// 🎯 完整16類MBTI資料庫 🎯
-// ============================================================================
+// 圖片資源
+const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
+const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
+const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
 
-const mbtiResults = {
-    INTJ: {
-        titleCN: '策略大師',
-        titleEN: 'The Mastermind',
-        quoteCN: '「我不跟隨潮流，我創造潮流。」',
-        quoteEN: '"I don't follow trends, I create them."',
-        tagsCN: ['高冷理性', '戰略思維', '獨立主義'],
-        tagsEN: ['Intellectual', 'Strategic', 'Independent'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'SAUVAGE', descriptionCN: '冷冽而強勁的木質調，散發出不可撼動的權威感。', descriptionEN: 'Bold woody notes that radiate unshakeable authority.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'OUD WOOD', descriptionCN: '沉穩神秘的東方調，彰顯低調奢華與智慧深度。', descriptionEN: 'Mysterious oriental blend showcasing quiet luxury and depth.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Creed_Aventus.png?raw=true', brand: 'CREED', name: 'AVENTUS', descriptionCN: '果香與煙燻的完美平衡，象徵征服與成就。', descriptionEN: 'Perfect balance of fruity and smoky notes, symbolizing conquest.' }
-        ]
-    },
-    INTP: {
-        titleCN: '邏輯哲學家',
-        titleEN: 'The Thinker',
-        quoteCN: '「真相藏在細節裡，而我熱愛細節。」',
-        quoteEN: '"Truth lies in details, and I love details."',
-        tagsCN: ['理性分析', '創新思維', '求知若渴'],
-        tagsEN: ['Analytical', 'Innovative', 'Curious'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'SANTAL 33', descriptionCN: '木質煙燻調，展現獨特個性與不拘一格。', descriptionEN: 'Woody and smoky, revealing unique personality.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'GYPSY WATER', descriptionCN: '清新木質調，捕捉自由靈魂的流浪精神。', descriptionEN: 'Fresh woody notes capturing the wanderer's free spirit.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'TAM DAO', descriptionCN: '檀香木的純淨，傳達哲學般的寧靜與深度。', descriptionEN: 'Pure sandalwood conveying philosophical tranquility.' }
-        ]
-    },
-    ENTJ: {
-        titleCN: '指揮官',
-        titleEN: 'The Commander',
-        quoteCN: '「我不等待機會，我創造機會。」',
-        quoteEN: '"I don't wait for opportunities, I create them."',
-        tagsCN: ['天生領袖', '果敢決斷', '目標導向'],
-        tagsEN: ['Natural Leader', 'Decisive', 'Goal-Oriented'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'TOBACCO VANILLE', descriptionCN: '濃烈的菸草與香草，展現強大的領導氣場。', descriptionEN: 'Rich tobacco and vanilla radiating powerful leadership.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Creed_Aventus.png?raw=true', brand: 'CREED', name: 'AVENTUS', descriptionCN: '果香與煙燻的完美平衡，象徵征服與成就。', descriptionEN: 'Perfect balance symbolizing conquest and achievement.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'SAUVAGE', descriptionCN: '冷冽而強勁的木質調，散發出不可撼動的權威感。', descriptionEN: 'Bold woody notes that radiate unshakeable authority.' }
-        ]
-    },
-    ENTP: {
-        titleCN: '辯論家',
-        titleEN: 'The Debater',
-        quoteCN: '「規則是用來挑戰的，界限是用來突破的。」',
-        quoteEN: '"Rules are meant to be challenged, boundaries to be broken."',
-        tagsCN: ['思維敏捷', '挑戰權威', '創意無限'],
-        tagsEN: ['Quick-Witted', 'Rebellious', 'Creative'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'GYPSY WATER', descriptionCN: '清新木質調，捕捉自由靈魂的流浪精神。', descriptionEN: 'Fresh woody notes capturing the wanderer's free spirit.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'SANTAL 33', descriptionCN: '木質煙燻調，展現獨特個性與不拘一格。', descriptionEN: 'Woody and smoky, revealing unique personality.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'DO SON', descriptionCN: '清新花香調，傳遞活潑與創新的氣息。', descriptionEN: 'Fresh floral notes conveying vibrancy and innovation.' }
-        ]
-    },
-    INFJ: {
-        titleCN: '提倡者',
-        titleEN: 'The Advocate',
-        quoteCN: '「我用心感受世界，用靈魂療癒他人。」',
-        quoteEN: '"I feel the world deeply and heal with my soul."',
-        tagsCN: ['理想主義', '深層共鳴', '神秘內斂'],
-        tagsEN: ['Idealistic', 'Empathetic', 'Mysterious'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'PHILOSYKOS', descriptionCN: '無花果的清新與溫暖，象徵理想與現實的和諧。', descriptionEN: 'Fresh and warm fig symbolizing harmony of ideals and reality.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'MOJAVE GHOST', descriptionCN: '輕盈花香調，傳遞神秘而溫柔的氣息。', descriptionEN: 'Airy floral notes conveying mystery and gentleness.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'ROSE 31', descriptionCN: '木質玫瑰調，展現柔中帶剛的內在力量。', descriptionEN: 'Woody rose revealing inner strength wrapped in softness.' }
-        ]
-    },
-    INFP: {
-        titleCN: '調停者',
-        titleEN: 'The Mediator',
-        quoteCN: '「我活在自己的詩裡，夢想著更美好的世界。」',
-        quoteEN: '"I live in my own poetry, dreaming of a better world."',
-        tagsCN: ['浪漫主義', '敏感細膩', '追求真我'],
-        tagsEN: ['Romantic', 'Sensitive', 'Authentic'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'BIBLIOTHÈQUE', descriptionCN: '書香與皮革的融合，喚起內心深處的詩意。', descriptionEN: 'Blend of paper and leather evoking inner poetry.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'DO SON', descriptionCN: '清新花香調，傳遞純真與夢想的氣息。', descriptionEN: 'Fresh floral notes conveying innocence and dreams.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'ANOTHER 13', descriptionCN: '輕盈麝香調，展現獨特而溫柔的個性。', descriptionEN: 'Airy musk revealing unique and gentle personality.' }
-        ]
-    },
-    ENFJ: {
-        titleCN: '主人公',
-        titleEN: 'The Protagonist',
-        quoteCN: '「我的存在，是為了讓周圍的人發光。」',
-        quoteEN: '"I exist to make those around me shine."',
-        tagsCN: ['魅力四射', '感染力強', '關懷他人'],
-        tagsEN: ['Charismatic', 'Inspiring', 'Caring'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'J'ADORE', descriptionCN: '華麗花香調，散發溫暖而迷人的領袖魅力。', descriptionEN: 'Luxurious floral radiating warm and captivating charm.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'NEROLI PORTOFINO', descriptionCN: '清新柑橘調，展現陽光般的親和力。', descriptionEN: 'Fresh citrus showcasing sunny approachability.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'SUNDAZED', descriptionCN: '明亮花果調，傳遞積極向上的感染力。', descriptionEN: 'Bright floral and fruity notes conveying positivity.' }
-        ]
-    },
-    ENFP: {
-        titleCN: '競選者',
-        titleEN: 'The Campaigner',
-        quoteCN: '「生命是一場冒險，我要活得精彩！」',
-        quoteEN: '"Life is an adventure, and I'll live it vividly!"',
-        tagsCN: ['熱情洋溢', '創意爆棚', '社交達人'],
-        tagsEN: ['Enthusiastic', 'Creative', 'Social Butterfly'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'SUNDAZED', descriptionCN: '明亮花果調，傳遞積極向上的感染力。', descriptionEN: 'Bright floral and fruity notes conveying positivity.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'NEROLI PORTOFINO', descriptionCN: '清新柑橘調，展現陽光般的親和力。', descriptionEN: 'Fresh citrus showcasing sunny approachability.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'DO SON', descriptionCN: '清新花香調，傳遞純真與夢想的氣息。', descriptionEN: 'Fresh floral notes conveying innocence and dreams.' }
-        ]
-    },
-    ISTJ: {
-        titleCN: '物流師',
-        titleEN: 'The Logistician',
-        quoteCN: '「責任與榮譽，是我的行為準則。」',
-        quoteEN: '"Duty and honor are my guiding principles."',
-        tagsCN: ['務實可靠', '注重細節', '傳統堅守'],
-        tagsEN: ['Practical', 'Detail-Oriented', 'Traditional'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Creed_Aventus.png?raw=true', brand: 'CREED', name: 'GREEN IRISH TWEED', descriptionCN: '經典綠色調，展現穩重與值得信賴的氣質。', descriptionEN: 'Classic green notes showcasing reliability and trustworthiness.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'HOMME INTENSE', descriptionCN: '木質花香調，傳遞專業與責任感。', descriptionEN: 'Woody floral conveying professionalism and responsibility.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'GREY VETIVER', descriptionCN: '清爽香根草調，象徵穩定與秩序。', descriptionEN: 'Fresh vetiver symbolizing stability and order.' }
-        ]
-    },
-    ISFJ: {
-        titleCN: '守護者',
-        titleEN: 'The Defender',
-        quoteCN: '「我的溫柔，是守護所愛之人的力量。」',
-        quoteEN: '"My gentleness is the strength that protects my loved ones."',
-        tagsCN: ['溫暖體貼', '忠誠守護', '默默付出'],
-        tagsEN: ['Warm', 'Loyal', 'Selfless'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'BAIES', descriptionCN: '黑醋栗與玫瑰的溫柔，傳遞守護的溫暖。', descriptionEN: 'Blackcurrant and rose conveying protective warmth.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'SLOW DANCE', descriptionCN: '柔和花香調，展現細膩的關懷與體貼。', descriptionEN: 'Soft floral showcasing delicate care and thoughtfulness.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'ROSE 31', descriptionCN: '木質玫瑰調，展現柔中帶剛的內在力量。', descriptionEN: 'Woody rose revealing inner strength wrapped in softness.' }
-        ]
-    },
-    ESTJ: {
-        titleCN: '總經理',
-        titleEN: 'The Executive',
-        quoteCN: '「效率至上，我用行動說話。」',
-        quoteEN: '"Efficiency first, I let actions speak."',
-        tagsCN: ['高效組織', '強勢領導', '實幹家'],
-        tagsEN: ['Organized', 'Assertive', 'Results-Driven'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'TOBACCO VANILLE', descriptionCN: '濃烈的菸草與香草，展現強大的領導氣場。', descriptionEN: 'Rich tobacco and vanilla radiating powerful leadership.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Creed_Aventus.png?raw=true', brand: 'CREED', name: 'AVENTUS', descriptionCN: '果香與煙燻的完美平衡，象徵征服與成就。', descriptionEN: 'Perfect balance symbolizing conquest and achievement.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'HOMME INTENSE', descriptionCN: '木質花香調，傳遞專業與責任感。', descriptionEN: 'Woody floral conveying professionalism and responsibility.' }
-        ]
-    },
-    ESFJ: {
-        titleCN: '執政官',
-        titleEN: 'The Consul',
-        quoteCN: '「和諧是我的使命，快樂是我的追求。」',
-        quoteEN: '"Harmony is my mission, happiness is my pursuit."',
-        tagsCN: ['親和力強', '善於協調', '熱心助人'],
-        tagsEN: ['Friendly', 'Harmonious', 'Helpful'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'MISS DIOR', descriptionCN: '優雅花香調，散發溫暖而親切的魅力。', descriptionEN: 'Elegant floral radiating warm and approachable charm.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'SUNDAZED', descriptionCN: '明亮花果調，傳遞積極向上的感染力。', descriptionEN: 'Bright floral and fruity notes conveying positivity.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'DO SON', descriptionCN: '清新花香調，傳遞純真與夢想的氣息。', descriptionEN: 'Fresh floral notes conveying innocence and dreams.' }
-        ]
-    },
-    ISTP: {
-        titleCN: '鑑賞家',
-        titleEN: 'The Virtuoso',
-        quoteCN: '「我用雙手創造，用行動證明。」',
-        quoteEN: '"I create with my hands and prove with actions."',
-        tagsCN: ['技術高手', '冷靜沉著', '靈活應變'],
-        tagsEN: ['Skilled', 'Calm', 'Adaptable'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Le_Labo_Santal_33.png?raw=true', brand: 'LE LABO', name: 'SANTAL 33', descriptionCN: '木質煙燻調，展現獨特個性與不拘一格。', descriptionEN: 'Woody and smoky, revealing unique personality.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'OUD WOOD', descriptionCN: '沉穩神秘的東方調，彰顯低調奢華與智慧深度。', descriptionEN: 'Mysterious oriental blend showcasing quiet luxury.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'TAM DAO', descriptionCN: '檀香木的純淨，傳達哲學般的寧靜與深度。', descriptionEN: 'Pure sandalwood conveying philosophical tranquility.' }
-        ]
-    },
-    ISFP: {
-        titleCN: '探險家',
-        titleEN: 'The Adventurer',
-        quoteCN: '「美存在於每個瞬間，我用心捕捉。」',
-        quoteEN: '"Beauty exists in every moment, and I capture it with my heart."',
-        tagsCN: ['藝術氣息', '隨性自由', '感性浪漫'],
-        tagsEN: ['Artistic', 'Free-Spirited', 'Romantic'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/BLACK_FADES_Zik.png?raw=true', brand: 'BLACK FADES', name: '暮夕', descriptionCN: '獨特的暮色調，捕捉藝術家內心的感性與浪漫。', descriptionEN: 'Unique twilight notes capturing the artist's sensitivity.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'GYPSY WATER', descriptionCN: '清新木質調，捕捉自由靈魂的流浪精神。', descriptionEN: 'Fresh woody notes capturing the wanderer's free spirit.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Diptyque_Tam_Dao.png?raw=true', brand: 'DIPTYQUE', name: 'DO SON', descriptionCN: '清新花香調，傳遞純真與夢想的氣息。', descriptionEN: 'Fresh floral notes conveying innocence and dreams.' }
-        ]
-    },
-    ESTP: {
-        titleCN: '企業家',
-        titleEN: 'The Entrepreneur',
-        quoteCN: '「風險？那是成功的調味料。」',
-        quoteEN: '"Risk? That's the spice of success."',
-        tagsCN: ['大膽冒險', '行動派', '活力四射'],
-        tagsEN: ['Bold', 'Action-Oriented', 'Energetic'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'SAUVAGE', descriptionCN: '冷冽而強勁的木質調，散發出不可撼動的權威感。', descriptionEN: 'Bold woody notes that radiate unshakeable authority.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Creed_Aventus.png?raw=true', brand: 'CREED', name: 'AVENTUS', descriptionCN: '果香與煙燻的完美平衡，象徵征服與成就。', descriptionEN: 'Perfect balance symbolizing conquest and achievement.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'TOBACCO VANILLE', descriptionCN: '濃烈的菸草與香草，展現強大的領導氣場。', descriptionEN: 'Rich tobacco and vanilla radiating powerful leadership.' }
-        ]
-    },
-    ESFP: {
-        titleCN: '表演者',
-        titleEN: 'The Entertainer',
-        quoteCN: '「生活是舞台，我就是主角！」',
-        quoteEN: '"Life is a stage, and I am the star!"',
-        tagsCN: ['魅力無限', '享受當下', '社交明星'],
-        tagsEN: ['Charismatic', 'Present-Focused', 'Social Star'],
-        products: [
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Byredo_Gypsy_Water.png?raw=true', brand: 'BYREDO', name: 'SUNDAZED', descriptionCN: '明亮花果調，傳遞積極向上的感染力。', descriptionEN: 'Bright floral and fruity notes conveying positivity.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/TF_Oud_Wood.png?raw=true', brand: 'TOM FORD', name: 'NEROLI PORTOFINO', descriptionCN: '清新柑橘調，展現陽光般的親和力。', descriptionEN: 'Fresh citrus showcasing sunny approachability.' },
-            { imageUrl: 'https://github.com/BDGOAL/SCENTATION/blob/main/product/Dior_Sauvage.png?raw=true', brand: 'DIOR', name: 'MISS DIOR', descriptionCN: '優雅花香調，散發溫暖而親切的魅力。', descriptionEN: 'Elegant floral radiating warm and approachable charm.' }
-        ]
-    }
+const questionImages = {
+    q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/1.png',
+    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/2.png',
+    q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/3.png',
+    q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/4.png',
+    intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
 };
-
-// ============================================================================
-// 🌐 多語系內容 🌐
-// ============================================================================
-
-const translations = {
-    'zh-TW': {
-        intro: {
-            title: '探索您的香氣密碼',
-            subtitle: '為的非凡風格，尋覓您的品味哲學。',
-            description: '於瞬息萬變的都會節奏中，您的香氣定義了您的氣場。\n迅速剖析核心人格特質，精準推薦最能彰顯您個人魅力的香調。',
-            button: '按此啟動 探索香氣'
-        },
-        nameInput: {
-            title: '請輸入您的姓名',
-            subtitle: '讓我們為您量身打造香氣體驗',
-            placeholder: '輸入姓名',
-            button: '開始測試'
-        },
-        header: { tagline: '請選擇一個最接近你目前狀況的句子：' },
-        exit: '✕',
-        restart: '重新探索',
-        share: '分享結果',
-        result: {
-            title: '您的香氣個性',
-            greeting: '親愛的 ',
-            recommendation: 'SCENTATION 為您推薦的香調'
-        },
-        shareQR: {
-            title: '分享您的專屬香氣',
-            subtitle: '掃描此 QR Code，與朋友分享你的香氣個性',
-            instruction: '請使用手機相機掃描 QR Code\n即可查看你的專屬香氣結果',
-            backButton: '返回結果'
-        },
-        questions: [
-            { id: 1, title: '最近的壓力就像：', options: [{ text: '腦子裡像開了99個瀏覽分頁，不斷想著要溫習。' }, { text: '有時候能放鬆，還撐得住！' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/1.png', progressWidth: 366 },
-            { id: 2, title: '', options: [{ text: '失眠，早上起來像喪屍一樣。' }, { text: '睡得著，早上精神也不錯。' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/2.png', progressWidth: 692 },
-            { id: 3, title: '', options: [{ text: '有點低落，吃東西都沒味道。' }, { text: '還是笑得出來。' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/3.png', progressWidth: 1081 },
-            { id: 4, title: '', options: [{ text: '肩膀和脖子痠痛，爬樓梯會喘氣。' }, { text: '活力充沛，從CC走上本部都沒問題。' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/4.png', progressWidth: 1400 }
-        ]
-    },
-    'en': {
-        intro: {
-            title: 'Unlock Your Scent Code',
-            subtitle: 'The Philosophy of Taste:\nFinding your signature scent for your extraordinary style.',
-            description: 'In the fast-paced urban rhythm, your scent defines your aura.\nQuickly analyze your core personality traits and receive precise recommendations for a luxury scent that highlights your unique charm.',
-            button: 'Discover Your Unique Charm'
-        },
-        nameInput: {
-            title: 'Enter Your Name',
-            subtitle: 'Let us tailor a scent experience just for you',
-            placeholder: 'Your name',
-            button: 'Start Now'
-        },
-        header: { tagline: 'Please choose a sentence which is closer to your current condition:' },
-        exit: '✕',
-        restart: 'Restart Quiz',
-        share: 'Share With Friends',
-        result: {
-            title: 'Your Exclusive Fragrance:',
-            greeting: 'Dear ',
-            recommendation: 'Your SCENTATION Recommended Scent:'
-        },
-        shareQR: {
-            title: 'Share Your Unique Scent',
-            subtitle: 'Scan this QR Code to share your scent personality with friends',
-            instruction: 'Use your phone camera to scan the QR Code\nView your exclusive scent result',
-            backButton: 'Back to Result'
-        },
-        questions: [
-            { id: 1, title: 'Recent stress feels like:', options: [{ text: 'Brain running 99 tabs, can't stop thinking about studying' }, { text: 'Still chill enough, holding up fine!' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/1.png', progressWidth: 366 },
-            { id: 2, title: '', options: [{ text: 'Insomnia, zombie mode in morning' }, { text: 'Can sleep, morning energy good' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/2.png', progressWidth: 692 },
-            { id: 3, title: '', options: [{ text: 'Feeling gray, food tastes blah' }, { text: 'Still smiling at times' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/3.png', progressWidth: 1081 },
-            { id: 4, title: '', options: [{ text: 'Neck hurts, stairs make me gasp' }, { text: 'Full energy, can hike up campus hill' }], image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/4.png', progressWidth: 1400 }
-        ]
-    }
-};
-
-// ============================================================================
-// 🧮 MBTI計算引擎 🧮
-// ============================================================================
-
-const calcMbti = (answers) => {
-    const scores = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
-    const mapping = [
-        { qId: 1, optA: 'N', optB: 'S' },
-        { qId: 2, optA: 'T', optB: 'F' },
-        { qId: 3, optA: 'J', optB: 'P' },
-        { qId: 4, optA: 'E', optB: 'I' }
-    ];
-    answers.forEach(ans => {
-        const rule = mapping.find(r => r.qId === ans.questionId);
-        if (rule) {
-            const chosenKey = ans.selectedIndex === 0 ? rule.optA : rule.optB;
-            scores[chosenKey]++;
-        }
-    });
-    const EI = scores.E > scores.I ? 'E' : 'I';
-    const SN = scores.S > scores.N ? 'S' : 'N';
-    const TF = scores.T > scores.F ? 'T' : 'F';
-    const JP = scores.J > scores.P ? 'J' : 'P';
-    return EI + SN + TF + JP;
-};
-
-// ============================================================================
-// 🎨 QR Code組件 🎨
-// ============================================================================
-
-const QRCodeComp = ({ value, size = 256 }) => {
-    const qrRef = useRef(null);
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (qrRef.current) {
-                qrRef.current.innerHTML = '';
-                try {
-                    new QRCode(qrRef.current, { 
-                        text: value, 
-                        width: size, 
-                        height: size, 
-                        colorDark: "#000000", 
-                        colorLight: "#ffffff", 
-                        correctLevel: QRCode.CorrectLevel.H 
-                    });
-                } catch (e) {
-                    console.error(e);
-                    qrRef.current.innerHTML = "<p style='color:black'>QR Code Error</p>";
-                }
-            } else if (!window.QRCode) {
-                if(qrRef.current) qrRef.current.innerHTML = "<p style='color:black; font-size:20px'>Library Loading...</p>";
-            }
-        }, 100);
-        return () => clearTimeout(timer);
-    }, [value, size]);
-    return <div ref={qrRef} style={{ padding: '40px', background: '#fff', borderRadius: '30px' }} />;
-};
-
-// ============================================================================
-// 🌟 主應用程式 🌟
-// ============================================================================
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState('intro');
     const [currentLang, setCurrentLang] = useState('zh-TW');
-    const [answers, setAnswers] = useState([]);
     const [playerName, setPlayerName] = useState('');
-    const [result, setResult] = useState(null);
-    const [shareUrl, setShareUrl] = useState('');
-    const [isShareMode, setIsShareMode] = useState(false);
-
-    useEffect(() => { setTimeout(updateLayout, 300); }, []);
-
-    const texts = translations[currentLang];
+    const [answers, setAnswers] = useState([]);
+    
     const keyboardLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-    // --- 🚀 獨立掛鉤：數據發送邏輯 ---
-useEffect(() => {
-    // 只有在「非分享模式」且「進入結果頁面」時才發送數據
-    if (!isShareMode && currentPage === 'result' && result && result.mbtiType) {
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxGMPQnqVHiAwrh4PTudMYTiv5Hj7hpGQMKeJwWDTdlQ4enkDdqe7tx1YLaMANOJLM/exec';
-        
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: playerName || 'Anonymous',
-                mbti: result.mbtiType,
-                timestamp: new Date().toLocaleString() // 改用 LocalString 方便你在 Sheet 直接閱讀時間
-            })
-        }).catch(err => console.warn("Background sheet sync failed:", err));
-    }
-}, [currentPage, result, isShareMode]); // 加入依賴項確保邏輯同步
-
-    useEffect(() => {
-        try {
-            const params = new URLSearchParams(window.location.search);
-            const mode = params.get('mode');
-
-            if (mode === 'share') {
-                setIsShareMode(true);
-                const name = params.get('name') || '';
-                const type = params.get('type') || 'INTJ';
-                const lang = params.get('lang') || 'zh-TW';
-                const p1 = parseInt(params.get('p1') || '0');
-                const p2 = parseInt(params.get('p2') || '1');
-
-                if (lang === 'en' || lang === 'zh-TW') setCurrentLang(lang);
-
-                if (mbtiResults[type]) {
-                    const originalResultData = mbtiResults[type];
-                    // 根據索引選擇產品
-                    const selectedProducts = [
-                        originalResultData.products[p1] || originalResultData.products[0],
-                        originalResultData.products[p2] || originalResultData.products[1]
-                    ];
-                    
-                    setPlayerName(name);
-                    setResult({ 
-                        mbtiType: type, 
-                        resultData: { ...originalResultData, products: selectedProducts }
-                    });
-                    setCurrentPage('result');
+    const texts = {
+        'zh-TW': {
+            intro: {
+                title: '探索您的香氣密碼',
+                subtitle: '為的非凡風格，尋覓您的品味哲學。',
+                description: '於瞬息萬變的都會節奏中，您的香氣定義了您的氣場。迅速剖析核心人格特質，精準推薦最能彰顯您個人魅力的香調。',
+                button: '按此啟動 探索香氣'
+            },
+            nameInput: {
+                title: '請輸入您的姓名',
+                subtitle: '讓我們為您量身打造香氣體驗',
+                placeholder: '輸入姓名',
+                button: '開始測試'
+            },
+            exit: '✕',
+            questions: [
+                {
+                    id: 1,
+                    title: '最近的壓力就像：',
+                    options: [
+                        '腦子裡像開了99個瀏覽分頁，不斷想著要溫習。',
+                        '有時候能放鬆，還撐得住！'
+                    ]
+                },
+                {
+                    id: 2,
+                    title: '',
+                    options: [
+                        '失眠，早上起來像喪屍一樣。',
+                        '睡得著，早上精神也不錯。'
+                    ]
+                },
+                {
+                    id: 3,
+                    title: '',
+                    options: [
+                        '有點低落，吃東西都沒味道。',
+                        '還是笑得出來。'
+                    ]
+                },
+                {
+                    id: 4,
+                    title: '',
+                    options: [
+                        '肩膀和脖子痠痛，爬樓梯會喘氣。',
+                        '活力充沛，從CC走上本部都沒問題。'
+                    ]
                 }
-            } else {
-                let timer;
-                const reset = () => { 
-                    clearTimeout(timer); 
-                    timer = setTimeout(() => restartQuiz(), 120000); 
-                };
-                const events = ['mousedown', 'mousemove', 'keypress', 'touchstart', 'click'];
-                events.forEach(e => window.addEventListener(e, reset));
-                reset();
-                return () => { 
-                    clearTimeout(timer); 
-                    events.forEach(e => window.removeEventListener(e, reset)); 
-                };
-            }
-        } catch(e) {
-            console.error("Init Error", e);
+            ]
+        },
+        'en': {
+            intro: {
+                title: 'Unlock Your Scent Code',
+                subtitle: 'The Philosophy of Taste: Finding your signature scent for your extraordinary style.',
+                description: 'In the fast-paced urban rhythm, your scent defines your aura. Quickly analyze your core personality traits and receive precise recommendations for a luxury scent that highlights your unique charm.',
+                button: 'Discover Your Unique Charm'
+            },
+            nameInput: {
+                title: 'Enter Your Name',
+                subtitle: 'Let us tailor a scent experience just for you',
+                placeholder: 'Your name',
+                button: 'Start Now'
+            },
+            exit: '✕',
+            questions: [
+                {
+                    id: 1,
+                    title: 'Recent stress feels like:',
+                    options: [
+                        'Brain running 99 tabs, can\'t stop thinking about studying',
+                        'Still chill enough, holding up fine!'
+                    ]
+                },
+                {
+                    id: 2,
+                    title: '',
+                    options: [
+                        'Insomnia, zombie mode in morning',
+                        'Can sleep, morning energy good'
+                    ]
+                },
+                {
+                    id: 3,
+                    title: '',
+                    options: [
+                        'Feeling gray, food tastes blah',
+                        'Still smiling at times'
+                    ]
+                },
+                {
+                    id: 4,
+                    title: '',
+                    options: [
+                        'Neck hurts, stairs make me gasp',
+                        'Full energy, can hike up campus hill'
+                    ]
+                }
+            ]
         }
-    }, []);
+    };
 
-    const restartQuiz = useCallback(() => {
-        setCurrentPage('intro');
-        setAnswers([]);
-        setResult(null);
-        setPlayerName('');
-        setShareUrl('');
-    }, []);
-
-    const handleAnswer = useCallback((questionId, selectedIndex, isLastQuestion = false) => {
-        setAnswers(prev => {
-            const newAnswers = [...prev, { questionId, selectedIndex }];
-            
-            if (isLastQuestion) {
-                setTimeout(() => {
-                    const mbtiType = calcMbti(newAnswers);
-                    const originalResultData = mbtiResults[mbtiType];
-                    
-                    // 隨機選擇2個產品並記錄索引
-                    let selectedProducts, p1Index, p2Index;
-                    
-                    // 特殊處理：ISFP 固定包含「暮夕」產品
-                    if (mbtiType === 'ISFP') {
-                        const zikProduct = originalResultData.products.find(p => p.brand === 'BLACK FADES');
-                        const otherProducts = originalResultData.products.filter(p => p.brand !== 'BLACK FADES');
-                        const randomOther = otherProducts[Math.floor(Math.random() * otherProducts.length)];
-                        
-                        selectedProducts = zikProduct ? [zikProduct, randomOther] : otherProducts.slice(0, 2);
-                        p1Index = originalResultData.products.findIndex(p => p.name === selectedProducts[0].name);
-                        p2Index = originalResultData.products.findIndex(p => p.name === selectedProducts[1].name);
-                    } else {
-                        // 其他類型：隨機選擇2個產品
-                        const shuffled = [...originalResultData.products].sort(() => Math.random() - 0.5);
-                        selectedProducts = shuffled.slice(0, 2);
-                        p1Index = originalResultData.products.findIndex(p => p.name === selectedProducts[0].name);
-                        p2Index = originalResultData.products.findIndex(p => p.name === selectedProducts[1].name);
-                    }
-                    
-                    setResult({ 
-                        mbtiType, 
-                        resultData: { ...originalResultData, products: selectedProducts }
-                    });
-                    
-                    // 生成包含產品索引的分享URL
-                    const baseUrl = getBaseUrl();
-                    const params = new URLSearchParams({
-                        mode: 'share',
-                        name: playerName || '',
-                        type: mbtiType,
-                        p1: p1Index,
-                        p2: p2Index,
-                        lang: currentLang
-                    });
-                    setShareUrl(`${baseUrl}?${params.toString()}`);
-                    setCurrentPage('result');
-                }, 100);
-            } else {
-                setCurrentPage(questionId + 1);
-            }
-            
-            return newAnswers;
-        });
-    }, [playerName, currentLang]);
-
-    const startQuiz = useCallback(() => { setCurrentPage('nameInput'); }, []);
-    const beginQuestions = useCallback(() => {
-        setPlayerName(prev => (prev && prev.trim() ? prev.trim() : ''));
-        setCurrentPage(1);
-    }, []);
-    const exitToIntro = useCallback(() => { restartQuiz(); }, [restartQuiz]);
-    const goToSharePage = useCallback(() => { if (shareUrl) setCurrentPage('share'); }, [shareUrl]);
-    const backToResultPage = useCallback(() => { setCurrentPage('result'); }, []);
+    const t = texts[currentLang];
+    
+    const handleAnswer = (questionId) => {
+        const nextId = questionId + 1;
+        console.log('Current question:', questionId, 'Next:', nextId);
+        
+        if (nextId <= 4) {
+            setTimeout(() => {
+                console.log('Moving to page:', nextId);
+                setCurrentPage(nextId);
+            }, 300);
+        } else {
+            alert('測驗完成！（結果頁面待開發）');
+        }
+    };
 
     return (
-        <div style={{ 
-            width: '100vw', 
-            height: '100vh', 
-            overflow: 'auto', 
-            background: '#000',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-        }}>
-            <div style={{ 
-                position: 'relative', 
-                width: '2160px', 
-                height: '3840px', 
-                boxSizing: 'border-box',
-                transform: 'scale(0.35)',
-                transformOrigin: 'center center'
+        <div style={{ position: 'relative', width: '2160px', height: '3840px', boxSizing: 'border-box' }}>
+            {/* Background Pattern */}
+            <div style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
+                <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" 
+                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Background" />
+            </div>
+
+            {/* Card Container */}
+            <div style={{
+                position: 'absolute',
+                width: '1722px',
+                height: '3392px',
+                left: currentPage === 'intro' ? '220px' : '219px',
+                top: currentPage === 'intro' ? '222px' : '216px',
+                background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)',
+                boxShadow: '0px 0px 39.9px 1px #D4AF37',
+                borderRadius: '35px',
             }}>
-                {/* 背景圖 */}
-                <div style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
-                    <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-
-                {/* 卡片容器 */}
-                <div style={{ 
-                    position: 'absolute', 
-                    width: '1722px', 
-                    height: '3392px', 
-                    left: currentPage === 'intro' ? '220px' : '219px', 
-                    top: currentPage === 'intro' ? '222px' : '216px', 
-                    background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)', 
-                    boxShadow: '0px 0px 39.9px 1px #D4AF37', 
-                    borderRadius: '35px' 
+                {/* CUHK Logo */}
+                <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    zIndex: 10,
+                    width: '75%',
+                    left: '12.5%'
                 }}>
-                    {/* CUHK Logo */}
-                    <div style={{ 
-                        position: 'absolute', 
-                        top: '20px', 
-                        zIndex: 10, 
-                        width: (currentPage === 'result' || currentPage === 'share') ? '864px' : '75%', 
-                        left: (currentPage === 'result' || currentPage === 'share') ? 'calc(50% - 864px/2 + 1px)' : '12.5%' 
-                    }}>
-                        <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png" style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} alt="CUHK Wellness Centre" />
-                    </div>
-
-                    {/* 語言切換器 */}
-                    {currentPage !== 'result' && currentPage !== 'share' && !isShareMode && (
-                        <div style={{ position: 'absolute', width: '553.5px', height: '108px', right: currentPage === 'intro' ? '80px' : '60px', top: currentPage === 'intro' ? '3080px' : 'auto', bottom: currentPage === 'intro' ? 'auto' : '80px', zIndex: 50 }}>
-                            <div style={{ position: 'absolute', width: '266px', height: '108px', left: 0, top: 0 }}>
-                                <div style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '25px', background: currentLang === 'zh-TW' ? '#B8860B' : '#383838' }}></div>
-                                <button onClick={() => setCurrentLang('zh-TW')} style={{ position: 'absolute', width: '100%', height: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '50px', fontFamily: "'Inter', sans-serif" }}>繁體</button>
-                            </div>
-                            <div style={{ position: 'absolute', width: '266px', height: '108px', left: '286px', top: 0 }}>
-                                <div style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '25px', background: currentLang === 'en' ? '#B8860B' : '#383838' }}></div>
-                                <button onClick={() => setCurrentLang('en')} style={{ position: 'absolute', width: '100%', height: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '50px', fontFamily: "'Inter', sans-serif" }}>English</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Exit按鈕 */}
-                    {!isShareMode && currentPage !== 'intro' && currentPage !== 'nameInput' && (
-                        <div style={{ position: 'absolute', left: '74px', top: '71px', zIndex: 52 }}>
-                            <div style={{ position: 'absolute', width: '132px', height: '132px', border: '5px solid #B8860B', borderRadius: '50%', boxSizing: 'border-box' }}></div>
-                            <button onClick={exitToIntro} style={{ position: 'absolute', width: '132px', height: '132px', background: 'transparent', border: 'none', color: '#B8860B', fontSize: '60px', fontFamily: "'Inter', sans-serif" }}>{texts.exit}</button>
-                        </div>
-                    )}
-
-                    {/* 首頁 */}
-                    {currentPage === 'intro' && (
-                        <>
-                            <div style={{ position: 'absolute', width: '1330px', height: '38px', left: 'calc(50% - 1330px/2)', top: currentLang === 'en' ? '500px' : '470px' }}>
-                                <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '6px solid #B8860B' }}></div>
-                                <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '12px solid #B8860B' }}></div>
-                            </div>
-
-                            <div style={{ position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: currentLang === 'en' ? '620px' : '571px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '64px', textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '58px' : '77px' }}>{texts.intro.subtitle}</div>
-
-                            <div style={{ position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)', top: currentLang === 'en' ? '733px' : '673px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '120px' : '150px', lineHeight: currentLang === 'en' ? '140px' : '182px', textAlign: 'center', color: '#B8860B' }}>{texts.intro.title}</div>
-
-                            <div style={{ position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)', top: currentLang === 'en' ? '900px' : '890px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '44px', lineHeight: currentLang === 'en' ? '58px' : '1.2', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap' }}>{texts.intro.description}</div>
-
-                            <div style={{ position: 'absolute', width: '1331px', height: '38px', left: 'calc(50% - 1331px/2 + 0.5px)', top: currentLang === 'en' ? '1160px' : '1040px' }}>
-                                <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '12px solid #B8860B' }}></div>
-                                <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '6px solid #B8860B' }}></div>
-                            </div>
-
-                            <div style={{ position: 'absolute', width: '1148px', height: '1200px', left: 'calc(50% - 1148px/2)', top: currentLang === 'en' ? '1300px' : '1139px', borderRadius: '25px', overflow: 'hidden' }}>
-                                <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-
-                            <button onClick={startQuiz} style={{ position: 'absolute', width: '1050px', height: '210px', left: 'calc(50% - 1050px/2)', top: currentLang === 'en' ? '2220px' : '2092px', background: '#B8860B', boxShadow: '0px 0px 18px 9px #FFFFFF', borderRadius: '25px', border: 'none', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '64px' : '96px', color: '#FFFFFF' }}>{texts.intro.button}</button>
-
-                            <div style={{ position: 'absolute', width: '1148px', height: '110px', left: '287px', top: currentLang === 'en' ? '2469px' : '2339px', background: '#FFFFFF', borderRadius: '0px 0px 25px 25px' }}></div>
-
-                            <div style={{ position: 'absolute', width: '1000px', left: 'calc(50% - 1000px/2)', top: currentLang === 'en' ? '2492px' : '2362px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '42px' : '55px', textAlign: 'center', color: '#B8860B' }}>{currentLang === 'zh-TW' ? '*點擊上方按鈕開始您的香味測試' : '*Tap the button above to start your scent quiz'}</div>
-                        </>
-                    )}
-
-                    {/* 姓名輸入頁面 */}
-                    {currentPage === 'nameInput' && (
-                        <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 60 }}>
-                            <div style={{ position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)', top: '650px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '110px' : '130px', textAlign: 'center', color: '#B8860B' }}>{texts.nameInput.title}</div>
-                            <div style={{ position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: '880px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px', textAlign: 'center', color: '#FFFFFF' }}>{texts.nameInput.subtitle}</div>
-                            <div style={{ position: 'absolute', width: '900px', height: '140px', left: 'calc(50% - 900px/2)', top: '1100px', background: '#FFFFFF', borderRadius: '25px', display: 'flex', alignItems: 'center', padding: '0 40px', boxSizing: 'border-box' }}>
-                                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: '56px', color: playerName ? '#1A1A1A' : '#999999' }}>{playerName || texts.nameInput.placeholder}</div>
-                                <span style={{ marginLeft: '10px', color: '#1A1A1A' }}>|</span>
-                            </div>
-                            <div style={{ position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)', top: '1350px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-                                    {keyboardLetters.map(l => (
-                                        <button key={l} onClick={() => setPlayerName(p => (p + l).slice(0, 10))} style={{ width: '150px', height: '150px', borderRadius: '30px', border: '3px solid #B8860B', background: '#2B2B2B', fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: '72px', color: '#FFFFFF' }}>{l}</button>
-                                    ))}
-                                </div>
-                                <div style={{ display: 'flex', gap: '40px', marginTop: '10px' }}>
-                                    <button onClick={() => setPlayerName(p => (p+' ').slice(0,10))} style={{ width: '390px', height: '150px', borderRadius: '30px', border: '3px solid #B8860B', background: '#2B2B2B', fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF' }}>{currentLang==='zh-TW'?'空白':'Space'}</button>
-                                    <button onClick={() => setPlayerName(p => p.slice(0,-1))} style={{ width: '390px', height: '150px', borderRadius: '30px', border: '3px solid #B8860B', background: '#2B2B2B', fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF' }}>{currentLang==='zh-TW'?'刪除':'Delete'}</button>
-                                    <button onClick={beginQuestions} style={{ width: '390px', height: '150px', borderRadius: '30px', border: 'none', background: '#B8860B', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF', boxShadow: '0 0 18px 6px rgba(255,255,255,0.3)' }}>{texts.nameInput.button}</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 問題頁面 */}
-                    {texts.questions.map(q => currentPage === q.id && (
-                        <div key={q.id}>
-                            <div style={{ position: 'absolute', width: '1280px', left: '220px', top: '676px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '64px', textAlign: 'center', color: '#FFFFFF' }}>{texts.header.tagline}</div>
-                            <div style={{ position: 'absolute', width: '1400px', height: '48px', left: '160px', top: currentLang === 'en' ? '828px' : '804px', background: '#333', borderRadius: '43px' }}>
-                                <div style={{ width: `${q.progressWidth}px`, height: '100%', background: '#B8860B', borderRadius: '43px', transition: 'width 0.5s' }}></div>
-                            </div>
-                            <div style={{ position: 'absolute', width: currentLang === 'en' && (q.id === 2 || q.id === 4) ? '1400px' : '1182px', left: currentLang === 'en' && (q.id === 2 || q.id === 4) ? 'calc(50% - 1400px/2)' : 'calc(50% - 1182px/2)', top: currentLang === 'en' ? '1018px' : '994px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '80px' : '96px', textAlign: 'center', color: '#B8860B', whiteSpace: 'pre-line' }}>{q.title}</div>
-                            <div style={{ position: 'absolute', width: '1309px', height: '602px', left: 'calc(50% - 1309px/2)', top: currentLang === 'en' ? '1348px' : '1298px', borderRadius: '25px', overflow: 'hidden' }}>
-                                <img src={q.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                            <div style={{ position: 'absolute', width: '1449px', left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2047px' : '1997px' }}>
-                                <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png" style={{ position: 'absolute', left: '0px', top: '10px', width: '120px', transform: 'scale(1.2)' }} />
-                                <button onClick={() => handleAnswer(q.id, 0, q.id === 4)} style={{ position: 'absolute', left: '160px', width: '1288px', height: currentLang === 'en' ? '260px' : '245px', border: '6px solid #FFF', borderRadius: '25px', background: 'transparent' }}>
-                                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px', padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line' }}>{q.options[0].text}</div>
-                                </button>
-                            </div>
-                            <div style={{ position: 'absolute', width: '1449px', left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2354px' : '2289px' }}>
-                                <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png" style={{ position: 'absolute', left: '0px', top: '10px', width: '120px', transform: 'scale(1.2)' }} />
-                                <button onClick={() => handleAnswer(q.id, 1, q.id === 4)} style={{ position: 'absolute', left: '160px', width: '1288px', height: currentLang === 'en' ? '260px' : '242px', border: '6px solid #FFF', borderRadius: '25px', background: 'transparent' }}>
-                                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px', padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line' }}>{q.options[1].text}</div>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-
-                    {/* 結果頁面 */}
-                    {currentPage === 'result' && result && (
-                        <div style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden' }}>
-                            <div style={{ position: 'absolute', width: '1280px', left: '220px', top: '576px', fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: currentLang === 'en' ? '80px' : '88px', textAlign: 'center', color: '#FFFFFF' }}>{texts.result.greeting}{playerName}</div>
-                            <div style={{ position: 'absolute', width: '1280px', left: '220px', top: currentLang === 'en' ? '728px' : '716px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '90px' : '128px', textAlign: 'center', color: '#B8860B' }}>
-                                {currentLang === 'zh-TW' ? result.resultData.titleCN : result.resultData.titleEN}
-                            </div>
-                            <div style={{ position: 'absolute', width: '1280px', left: '220px', top: currentLang === 'en' ? '876px' : '900px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '60px', textAlign: 'center', color: '#FFFFFF', lineHeight: '1.3' }}>
-                                {currentLang === 'zh-TW' ? result.resultData.quoteCN : result.resultData.quoteEN}
-                            </div>
-                            <div style={{ position: 'absolute', display: 'flex', gap: '20px', justifyContent: 'center', left: '220px', width: '1280px', top: currentLang === 'en' ? '1032px' : '1040px' }}>
-                                {(currentLang === 'zh-TW' ? result.resultData.tagsCN : result.resultData.tagsEN).map((tag, i) => (
-                                    <div key={i} style={{ padding: '15px 35px', border: '3px solid #B8860B', borderRadius: '25px', fontFamily: "'Inter', sans-serif", fontSize: '44px', color: '#B8860B' }}>{tag}</div>
-                                ))}
-                            </div>
-                            <div style={{ position: 'absolute', width: '1280px', left: '220px', top: currentLang === 'en' ? '1200px' : '1220px', fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: currentLang === 'en' ? '60px' : '70px', textAlign: 'center', color: '#FFFFFF' }}>{texts.result.recommendation}</div>
-                            <div style={{ position: 'absolute', left: '118px', top: currentLang === 'en' ? '1380px' : '1380px', display: 'flex', gap: '40px', width: '1485px', justifyContent: 'space-between' }}>
-                                {result.resultData.products.map((p, i) => (
-                                    <div key={i} style={{ width: '722.5px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ width: currentLang === 'en' ? '620px' : '722.5px', height: currentLang === 'en' ? '620px' : '722.5px', display: 'flex', alignItems:'center', justifyContent:'center', background:'#FFF', marginBottom: '20px', flexShrink: 0 }}>
-                                            <img src={p.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                        </div>
-                                        <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '40px' : '45px', color: '#FFFFFF', marginTop: '10px', textAlign: 'center' }}>{p.brand}</div>
-                                        <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '48px' : '55px', color: '#FFFFFF', margin: '10px 0', textAlign: 'center' }}>{p.name}</div>
-                                        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '36px' : '40px', lineHeight: '1.3', color: '#FFFFFF', padding: '20px 0', textAlign: 'center', whiteSpace: 'pre-wrap', wordWrap: 'break-word', flex: 1 }}>
-                                            {currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* 底部按鈕 */}
-                            {!isShareMode && (
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', marginTop: '50px' }}>
-                                    <button onClick={restartQuiz} style={{ width: currentLang === 'en' ? '640px' : '540px', height: '123px', background: '#D4AF37', borderRadius: '25px', border: 'none', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '60px' : '70px', color: '#FFFFFF' }}>{texts.restart}</button>
-                                    <button onClick={goToSharePage} style={{ width: currentLang === 'en' ? '640px' : '540px', height: '123px', background: '#FFFFFF', borderRadius: '25px', border: 'none', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '60px' : '70px', color: '#D4AF37' }}>{texts.share}</button>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* 分享頁面 */}
-                    {currentPage === 'share' && (
-                        <>
-                            <div style={{ position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)', top: '650px', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '110px' : '130px', textAlign: 'center', color: '#B8860B' }}>{texts.shareQR.title}</div>
-                            <div style={{ position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: '880px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px', textAlign: 'center', color: '#FFFFFF' }}>{texts.shareQR.subtitle}</div>
-                            <div style={{ position: 'absolute', width: '600px', height: '600px', left: 'calc(50% - 600px/2)', top: '1100px', background: '#FFFFFF', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <QRCodeComp value={shareUrl} size={500} />
-                            </div>
-                            <div style={{ position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: '1800px', fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '42px' : '44px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line' }}>{texts.shareQR.instruction}</div>
-                            <button onClick={backToResultPage} style={{ position: 'absolute', width: currentLang === 'en' ? '800px' : '600px', height: '150px', left: currentLang === 'en' ? 'calc(50% - 800px/2)' : 'calc(50% - 600px/2)', bottom: '220px', background: '#B8860B', borderRadius: '25px', border: 'none', fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: currentLang === 'en' ? '56px' : '72px', color: '#FFFFFF' }}>{texts.shareQR.backButton}</button>
-                        </>
-                    )}
+                    <img src={cuhkLogo} 
+                         style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
+                         alt="CUHK Wellness Centre" />
                 </div>
+
+                {/* Language Switcher */}
+                <div style={{
+                    position: 'absolute',
+                    width: '553.5px',
+                    height: '108px',
+                    right: currentPage === 'intro' ? '80px' : '60px',
+                    bottom: '80px',
+                    zIndex: 50
+                }}>
+                    <div style={{ position: 'absolute', width: '266px', height: '108px', left: 0, top: 0 }}>
+                        <div style={{
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '25px',
+                            background: currentLang === 'zh-TW' ? '#B8860B' : '#383838'
+                        }}></div>
+                        <button onClick={() => setCurrentLang('zh-TW')} style={{
+                            position: 'absolute', width: '100%', height: '100%',
+                            background: 'transparent', border: 'none', color: '#FFF',
+                            fontSize: '50px', fontFamily: "'Inter', sans-serif"
+                        }}>繁體</button>
+                    </div>
+                    <div style={{ position: 'absolute', width: '266px', height: '108px', left: '286px', top: 0 }}>
+                        <div style={{
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '25px',
+                            background: currentLang === 'en' ? '#B8860B' : '#383838'
+                        }}></div>
+                        <button onClick={() => setCurrentLang('en')} style={{
+                            position: 'absolute', width: '100%', height: '100%',
+                            background: 'transparent', border: 'none', color: '#FFF',
+                            fontSize: '50px', fontFamily: "'Inter', sans-serif"
+                        }}>English</button>
+                    </div>
+                </div>
+
+                {/* Exit Button */}
+                {currentPage !== 'intro' && currentPage !== 'nameInput' && (
+                    <div style={{ position: 'absolute', left: '74px', top: '71px', zIndex: 52 }}>
+                        <div style={{
+                            position: 'absolute', width: '132px', height: '132px',
+                            border: '5px solid #B8860B', borderRadius: '50%', boxSizing: 'border-box'
+                        }}></div>
+                        <button onClick={() => setCurrentPage('intro')} style={{
+                            position: 'absolute', width: '132px', height: '132px',
+                            background: 'transparent', border: 'none', color: '#B8860B',
+                            fontSize: '60px', fontFamily: "'Inter', sans-serif"
+                        }}>{t.exit}</button>
+                    </div>
+                )}
+
+                {/* Intro Page */}
+                {currentPage === 'intro' && (
+                    <>
+                        <div style={{
+                            position: 'absolute', width: '1330px', height: '38px',
+                            left: 'calc(50% - 1330px/2)', top: currentLang === 'en' ? '500px' : '470px'
+                        }}>
+                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '6px solid #B8860B' }}></div>
+                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '12px solid #B8860B' }}></div>
+                        </div>
+
+                        <div style={{
+                            position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)',
+                            top: currentLang === 'en' ? '620px' : '571px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '64px',
+                            textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '58px' : '77px'
+                        }}>{t.intro.subtitle}</div>
+
+                        <div style={{
+                            position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)',
+                            top: currentLang === 'en' ? '733px' : '673px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '120px' : '150px',
+                            lineHeight: currentLang === 'en' ? '140px' : '182px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>{t.intro.title}</div>
+
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)',
+                            top: currentLang === 'en' ? '900px' : '890px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '44px',
+                            lineHeight: currentLang === 'en' ? '58px' : '1.2',
+                            textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
+                        }}>{t.intro.description}</div>
+
+                        <div style={{
+                            position: 'absolute', width: '1331px', height: '38px',
+                            left: 'calc(50% - 1331px/2 + 0.5px)', top: currentLang === 'en' ? '1160px' : '1040px'
+                        }}>
+                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '12px solid #B8860B' }}></div>
+                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '6px solid #B8860B' }}></div>
+                        </div>
+
+                        <div style={{
+                            position: 'absolute', width: '1148px', height: '1200px',
+                            left: 'calc(50% - 1148px/2)', top: currentLang === 'en' ? '1300px' : '1139px',
+                            borderRadius: '25px', overflow: 'hidden'
+                        }}>
+                            <img src={questionImages.intro} 
+                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Intro" />
+                        </div>
+
+                        <button onClick={() => setCurrentPage('nameInput')} style={{
+                            position: 'absolute', width: '1050px', height: '210px',
+                            left: 'calc(50% - 1050px/2)', top: currentLang === 'en' ? '2220px' : '2092px',
+                            background: '#B8860B', boxShadow: '0px 0px 18px 9px #FFFFFF',
+                            borderRadius: '25px', border: 'none',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '64px' : '96px', color: '#FFFFFF'
+                        }}>{t.intro.button}</button>
+
+                        <div style={{
+                            position: 'absolute', width: '1148px', height: '110px',
+                            left: '287px', top: currentLang === 'en' ? '2469px' : '2339px',
+                            background: '#FFFFFF', borderRadius: '0px 0px 25px 25px'
+                        }}></div>
+
+                        <div style={{
+                            position: 'absolute', width: '1000px', left: 'calc(50% - 1000px/2)',
+                            top: currentLang === 'en' ? '2492px' : '2362px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '42px' : '55px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>
+                            {currentLang === 'zh-TW' ? '*點擊上方按鈕開始您的香味測試' : '*Tap the button above to start your scent quiz'}
+                        </div>
+                    </>
+                )}
+
+                {/* Name Input Page */}
+                {currentPage === 'nameInput' && (
+                    <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 60 }}>
+                        <div style={{
+                            position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)', top: '650px',
+                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                            fontSize: currentLang === 'en' ? '110px' : '130px',
+                            textAlign: 'center', color: '#B8860B'
+                        }}>{t.nameInput.title}</div>
+
+                        <div style={{
+                            position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: '880px',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px',
+                            textAlign: 'center', color: '#FFFFFF'
+                        }}>{t.nameInput.subtitle}</div>
+
+                        <div style={{
+                            position: 'absolute', width: '900px', height: '140px',
+                            left: 'calc(50% - 900px/2)', top: '1100px',
+                            background: '#FFFFFF', borderRadius: '25px',
+                            display: 'flex', alignItems: 'center', padding: '0 40px', boxSizing: 'border-box'
+                        }}>
+                            <div style={{
+                                fontFamily: "'Inter', sans-serif", fontSize: '56px',
+                                color: playerName ? '#1A1A1A' : '#999999'
+                            }}>{playerName || t.nameInput.placeholder}</div>
+                            <span style={{ marginLeft: '10px', color: '#1A1A1A' }}>|</span>
+                        </div>
+
+                        <div style={{
+                            position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)', top: '1350px',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px'
+                        }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+                                {keyboardLetters.map((l) => (
+                                    <button key={l} onClick={() => setPlayerName(p => (p + l).slice(0, 10))} style={{
+                                        width: '150px', height: '150px', borderRadius: '30px',
+                                        border: '3px solid #B8860B', background: '#2B2B2B',
+                                        fontFamily: "'Inter', sans-serif", fontWeight: 600,
+                                        fontSize: '72px', color: '#FFFFFF'
+                                    }}>{l}</button>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '40px', marginTop: '10px' }}>
+                                <button onClick={() => setPlayerName(p => (p + ' ').slice(0, 10))} style={{
+                                    width: '390px', height: '150px', borderRadius: '30px',
+                                    border: '3px solid #B8860B', background: '#2B2B2B',
+                                    fontFamily: "'Inter', sans-serif", fontWeight: 500,
+                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF'
+                                }}>{currentLang === 'zh-TW' ? '空白' : 'Space'}</button>
+                                <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{
+                                    width: '390px', height: '150px', borderRadius: '30px',
+                                    border: '3px solid #B8860B', background: '#2B2B2B',
+                                    fontFamily: "'Inter', sans-serif", fontWeight: 500,
+                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF'
+                                }}>{currentLang === 'zh-TW' ? '刪除' : 'Delete'}</button>
+                                <button onClick={() => setCurrentPage(1)} style={{
+                                    width: '390px', height: '150px', borderRadius: '30px', border: 'none',
+                                    background: '#B8860B', fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF',
+                                    boxShadow: '0 0 18px 6px rgba(255,255,255,0.3)'
+                                }}>{t.nameInput.button}</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Question Pages */}
+                {[1, 2, 3, 4].map(qId => {
+                    const q = t.questions[qId - 1];
+                    const progressWidths = [366, 692, 1081, 1400];
+                    
+                    return currentPage === qId && (
+                        <div key={qId}>
+                            <div style={{
+                                position: 'absolute', width: '1280px', left: '220px', top: '676px',
+                                fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '64px',
+                                textAlign: 'center', color: '#FFFFFF'
+                            }}>請選擇一個最接近你目前狀況的句子：</div>
+
+                            <div style={{
+                                position: 'absolute', width: '1400px', height: '48px',
+                                left: '160px', top: currentLang === 'en' ? '828px' : '804px',
+                                background: '#333', borderRadius: '43px'
+                            }}>
+                                <div style={{
+                                    width: `${progressWidths[qId - 1]}px`,
+                                    height: '100%',
+                                    background: '#B8860B',
+                                    borderRadius: '43px',
+                                    transition: 'width 0.5s'
+                                }}></div>
+                            </div>
+
+                            <div style={{
+                                position: 'absolute', width: '1182px',
+                                left: 'calc(50% - 1182px/2)', top: currentLang === 'en' ? '1018px' : '994px',
+                                fontFamily: "'Inter', sans-serif", fontWeight: 700,
+                                fontSize: currentLang === 'en' ? '80px' : '96px',
+                                textAlign: 'center', color: '#B8860B', whiteSpace: 'pre-line'
+                            }}>{q.title}</div>
+
+                            <div style={{
+                                position: 'absolute', width: '1309px', height: '602px',
+                                left: 'calc(50% - 1309px/2)', top: currentLang === 'en' ? '1348px' : '1298px',
+                                borderRadius: '25px', overflow: 'hidden'
+                            }}>
+                                <img src={questionImages[`q${qId}`]} 
+                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                     alt={`Question ${qId}`} />
+                            </div>
+
+                            <div style={{
+                                position: 'absolute', width: '1449px',
+                                left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2047px' : '1997px'
+                            }}>
+                                <img src={iconA} style={{
+                                    position: 'absolute', left: '0px', top: '10px',
+                                    width: '120px', transform: 'scale(1.2)'
+                                }} alt="Option A" />
+                                <button onClick={() => handleAnswer(qId)} style={{
+                                    position: 'absolute', left: '160px', width: '1288px',
+                                    height: currentLang === 'en' ? '260px' : '245px',
+                                    border: '6px solid #FFF', borderRadius: '25px',
+                                    background: 'transparent'
+                                }}>
+                                    <div style={{
+                                        fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px',
+                                        padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line'
+                                    }}>{q.options[0]}</div>
+                                </button>
+                            </div>
+
+                            <div style={{
+                                position: 'absolute', width: '1449px',
+                                left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2354px' : '2289px'
+                            }}>
+                                <img src={iconB} style={{
+                                    position: 'absolute', left: '0px', top: '10px',
+                                    width: '120px', transform: 'scale(1.2)'
+                                }} alt="Option B" />
+                                <button onClick={() => handleAnswer(qId)} style={{
+                                    position: 'absolute', left: '160px', width: '1288px',
+                                    height: currentLang === 'en' ? '260px' : '242px',
+                                    border: '6px solid #FFF', borderRadius: '25px',
+                                    background: 'transparent'
+                                }}>
+                                    <div style={{
+                                        fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px',
+                                        padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line'
+                                    }}>{q.options[1]}</div>
+                                </button>
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
@@ -835,13 +578,5 @@ useEffect(() => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 </script>
-
-<script>
-    setTimeout(() => {
-        const loadingEl = document.getElementById('loading');
-        if (loadingEl) loadingEl.style.display = 'none';
-    }, 1500);
-</script>
-
 </body>
 </html>
