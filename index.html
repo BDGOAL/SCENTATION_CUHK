@@ -671,12 +671,12 @@ const App = () => {
                             }}>{q.title}</div>
 
                             <div style={{
-                                position: 'absolute', width: '1309px', height: '602px',
-                                left: 'calc(50% - 1309px/2)', top: currentLang === 'en' ? '1348px' : '1298px',
+                                position: 'absolute', width: '1100px', height: '1100px',
+                                left: 'calc(50% - 550px)', top: currentLang === 'en' ? '1248px' : '1198px',
                                 borderRadius: '25px', overflow: 'hidden'
                             }}>
                                 <img src={questionImages[`q${qId}`]} 
-                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                     style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
                                      alt={`Question ${qId}`} />
                             </div>
 
@@ -831,27 +831,50 @@ const App = () => {
                                             width: '520px', 
                                             background: '#D4AF37', 
                                             borderRadius: '25px', 
-                                            padding: '30px', 
+                                            padding: '15px', 
                                             display: 'flex', 
                                             flexDirection: 'column', 
                                             alignItems: 'center' 
                                         }}>
+                                            {/* 香水圖片位置 - 正方形 */}
+                                            <div style={{ 
+                                                width: '458px', 
+                                                height: '458px', 
+                                                borderRadius: '25px', 
+                                                overflow: 'hidden', 
+                                                display:'flex', 
+                                                alignItems:'center', 
+                                                justifyContent:'center', 
+                                                background:'#333', 
+                                                marginBottom: '20px',
+                                                border: '2px solid #FFFFFF',
+                                                boxSizing: 'border-box'
+                                            }}>
+                                                {/* 預留位置給香水圖片 */}
+                                                <div style={{
+                                                    fontFamily: "'Inter', sans-serif",
+                                                    fontSize: '36px',
+                                                    color: '#888',
+                                                    textAlign: 'center'
+                                                }}>Product Image</div>
+                                            </div>
                                             <div style={{ 
                                                 fontFamily: "'Inter', sans-serif", 
                                                 fontWeight: 700, 
-                                                fontSize: currentLang === 'en' ? '45px' : '50px', 
+                                                fontSize: currentLang === 'en' ? '40px' : '45px', 
                                                 color: '#FFFFFF', 
                                                 textAlign: 'center',
-                                                marginBottom: '20px'
+                                                marginBottom: '10px'
                                             }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
                                             <div style={{ 
                                                 fontFamily: "'Inter', sans-serif", 
-                                                fontSize: currentLang === 'en' ? '36px' : '40px', 
-                                                lineHeight: '1.4', 
+                                                fontSize: currentLang === 'en' ? '32px' : '36px', 
+                                                lineHeight: '1.3', 
                                                 color: '#FFFFFF', 
                                                 textAlign: 'center', 
                                                 whiteSpace: 'pre-wrap', 
-                                                wordWrap: 'break-word'
+                                                wordWrap: 'break-word',
+                                                padding: '0 15px'
                                             }}>
                                                 {currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}
                                             </div>
