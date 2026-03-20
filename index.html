@@ -419,50 +419,18 @@ const App = () => {
                 boxShadow: '0px 0px 39.9px 1px #D4AF37',
                 borderRadius: '35px',
             }}>
-                {/* CUHK Logo (all pages except result) */}
-                {currentPage !== 'result' && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '20px',
-                        zIndex: 10,
-                        width: '75%',
-                        left: '12.5%'
-                    }}>
-                        <img src={cuhkLogo} 
-                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
-                             alt="CUHK Wellness Centre" />
-                    </div>
-                )}
-
-                {/* Walk with You Logo (result page only) */}
-                {currentPage === 'result' && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '50px',
-                        zIndex: 10,
-                        width: '500px',
-                        left: 'calc(50% - 250px)'
-                    }}>
-                        <img src={walkWithYouLogo} 
-                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
-                             alt="Walk with You" />
-                    </div>
-                )}
-
-                {/* CUHK Logo on result page */}
-                {currentPage === 'result' && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '20px',
-                        zIndex: 10,
-                        width: '75%',
-                        left: '12.5%'
-                    }}>
-                        <img src={cuhkLogo} 
-                             style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
-                             alt="CUHK Wellness Centre" />
-                    </div>
-                )}
+                {/* CUHK Logo (all pages) */}
+                <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    zIndex: 10,
+                    width: '75%',
+                    left: '12.5%'
+                }}>
+                    <img src={cuhkLogo} 
+                         style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
+                         alt="CUHK Wellness Centre" />
+                </div>
 
                 {/* Language Switcher */}
                 {currentPage !== 'result' && (
