@@ -261,8 +261,8 @@ const App = () => {
     const texts = {
         'zh-TW': {
             intro: {
-                title: '探索你的專屬香氣<br>連結情緒與香氛',
-                subtitle: '香氣不是魔法，<br>但它會提醒你：「你值得被溫柔對待」',
+                title: ['探索你的專屬香氣，', '連結情緒與香氛'],
+                subtitle: ['香氣不是魔法，', '但它會提醒你：「你值得被溫柔對待」'],
                 description: '',
                 button: '按此啟動 探索香氣'
             },
@@ -318,8 +318,8 @@ const App = () => {
         },
         'en': {
             intro: {
-                title: 'Explore your unique scent, connecting emotions with scent.',
-                subtitle: 'Fragrance may not be magic, but it reminds you to be gentle with yourself',
+                title: ['Explore your unique scent,', 'connecting emotions with scent.'],
+                subtitle: ['Fragrance may not be magic,', 'but it reminds you to be gentle with yourself'],
                 description: '',
                 button: 'Discover Your Unique Scent'
             },
@@ -515,7 +515,11 @@ const App = () => {
                             top: currentLang === 'en' ? '620px' : '571px',
                             fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '64px',
                             textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '58px' : '77px'
-                        }}>{t.intro.subtitle}</div>
+                        }}>
+                            {t.intro.subtitle[0]}
+                            <br />
+                            {t.intro.subtitle[1]}
+                        </div>
 
                         <div style={{
                             position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)',
@@ -524,7 +528,11 @@ const App = () => {
                             fontSize: currentLang === 'en' ? '120px' : '150px',
                             lineHeight: currentLang === 'en' ? '140px' : '182px',
                             textAlign: 'center', color: '#B8860B'
-                        }}>{t.intro.title}</div>
+                        }}>
+                            {t.intro.title[0]}
+                            <br />
+                            {t.intro.title[1]}
+                        </div>
 
                         <div style={{
                             position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)',
