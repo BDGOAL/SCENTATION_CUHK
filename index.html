@@ -203,7 +203,7 @@ const wellnessResults = {
         bodySaysEN: '"I\'m basically okay, but could be better."',
         scentCN: '清新海洋調（海鹽＋薄荷）',
         scentEN: 'Refreshing Ocean Notes (Sea Salt + Mint)',
-        reminderCN: '你處理得很好！這清新的香氣像微風輕輕吹過，喚醒你最舒服自在���那一面。',
+        reminderCN: '你處理得很好！這清新的香氣像微風輕輕吹過，喚醒你最舒服自在的那一面。',
         reminderEN: 'You\'re handling things wonderfully! This fresh scent is like a gentle breeze, awakening your most relaxed and comfortable self.',
         products: [
             {
@@ -513,8 +513,8 @@ const App = () => {
                         <div style={{
                             position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)',
                             top: currentLang === 'en' ? '540px' : '550px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '27px' : '64px',
-                            textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '41px' : '77px'
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '64px',
+                            textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '58px' : '77px'
                         }}>
                             {t.intro.subtitle[0]}
                             <br />
@@ -537,8 +537,8 @@ const App = () => {
                         <div style={{
                             position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)',
                             top: currentLang === 'en' ? '900px' : '890px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '27px' : '44px',
-                            lineHeight: currentLang === 'en' ? '41px' : '1.2',
+                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '44px',
+                            lineHeight: currentLang === 'en' ? '58px' : '1.2',
                             textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
                         }}>{t.intro.description}</div>
 
@@ -565,7 +565,7 @@ const App = () => {
                             background: '#B8860B', boxShadow: '0px 0px 18px 9px #FFFFFF',
                             borderRadius: '25px', border: 'none',
                             fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '45px' : '96px', color: '#FFFFFF'
+                            fontSize: currentLang === 'en' ? '64px' : '96px', color: '#FFFFFF'
                         }}>{t.intro.button}</button>
 
                         <div style={{
@@ -578,7 +578,7 @@ const App = () => {
                             position: 'absolute', width: '1000px', left: 'calc(50% - 1000px/2)',
                             top: currentLang === 'en' ? '2452px' : '2502px',
                             fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '29px' : '55px',
+                            fontSize: currentLang === 'en' ? '42px' : '55px',
                             textAlign: 'center', color: '#B8860B'
                         }}>
                             {currentLang === 'zh-TW' ? '*點擊上方按鈕開始您的香味測試' : '*Tap the button above to start your scent quiz'}
