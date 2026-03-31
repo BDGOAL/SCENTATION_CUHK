@@ -24,7 +24,7 @@ body, html {
     background-color: #1A1A1A;
     opacity: 0; transition: opacity 0.5s ease-in;
 }
-button { cursor: pointer; transition: opacity 0.1s; }
+button { cursor: pointer; transition: opacity 0.1s; border: none; }
 button:active { opacity: 0.8; }
 #loading {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -32,6 +32,15 @@ button:active { opacity: 0.8; }
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     font-size: 40px; font-family: 'Inter', sans-serif;
     z-index: 9999;
+}
+.page-container {
+    position: absolute;
+    top: 320px;
+    left: 0;
+    width: 100%;
+    height: 3180px; /* 扣除頂部 Banner 和底部 Footer */
+    overflow: hidden;
+    text-align: center;
 }
 </style>
 </head>
@@ -42,22 +51,20 @@ button:active { opacity: 0.8; }
 <script type="text/babel">
 const { useState, useEffect } = React;
 
+// 排版引擎
 const updateLayout = () => {
     const root = document.getElementById('root');
     if (!root) return;
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
-    const targetW = 2160;
-    const targetH = 3840;
-    const scale = Math.min(screenW / targetW, screenH / targetH);
+    const scale = Math.min(screenW / 2160, screenH / 3840);
     root.style.position = 'absolute';
     root.style.left = '50%';
     root.style.top = '50%';
     root.style.transformOrigin = 'center center';
     root.style.transform = `translate(-50%, -50%) scale(${scale})`;
     root.style.opacity = 1;
-    const loader = document.getElementById('loading');
-    if(loader) loader.style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
 };
 
 window.addEventListener('load', updateLayout);
@@ -75,25 +82,21 @@ const App = () => {
     const [showInstagram, setShowInstagram] = useState(false);
     
     const isZH = currentLang === 'zh-TW';
-    const keyboardLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+    // 每次切換頁面時強製顯示根節點並置頂
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [currentPage, showInstagram]);
+
+    const changePage = (pageName) => {
+        setCurrentPage(pageName);
+    };
 
     const restartQuiz = () => {
         setPlayerName('');
         setShowInstagram(false);
         setCurrentPage('intro');
     };
-
-    const FooterNav = () => (
-        <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 200 }}>
-            <button onClick={restartQuiz} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>
-                {isZH ? '首頁' : 'Home'}
-            </button>
-            <div style={{ display: 'flex', gap: '30px' }}>
-                <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>繁體</button>
-                <button onClick={() => setCurrentLang('en')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>English</button>
-            </div>
-        </div>
-    );
 
     return (
         <div style={{ position: 'relative', width: '2160px', height: '3840px', overflow: 'hidden' }}>
@@ -104,55 +107,62 @@ const App = () => {
                 background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)',
                 boxShadow: '0px 0px 60px 15px rgba(212, 175, 55, 0.4)', borderRadius: '45px', overflow: 'hidden'
             }}>
-                <div style={{ width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {/* 頂部 Banner */}
+                <div style={{ position: 'absolute', top: 0, width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
                     <img src={cuhkLogo} style={{ height: '240px' }} />
                 </div>
 
-                {/* Intro Page */}
-                {currentPage === 'intro' && (
-                    <div style={{ paddingTop: '150px', textAlign: 'center' }}>
-                        <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>
-                            {isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>{isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}
-                        </div>
-                        <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0', lineHeight: '1.2' }}>
-                            {isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>{isZH ? "連結情緒與香氛" : "connecting emotions with scent."}
-                        </div>
-                        <img src={introImg} style={{ width: '1150px', borderRadius: '35px' }} />
-                        <div style={{ marginTop: '200px' }}>
-                            <button onClick={() => setCurrentPage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', border: 'none', fontWeight: 700 }}>
-                                {isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}
-                            </button>
-                            <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>
-                                {isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}
+                {/* 頁面內容渲染區域 */}
+                <div className="page-container">
+                    {currentPage === 'intro' && (
+                        <div key="intro" style={{ paddingTop: '150px' }}>
+                            <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>
+                                {isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>{isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}
+                            </div>
+                            <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0', lineHeight: '1.2' }}>
+                                {isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>{isZH ? "連結情緒與香氛" : "connecting emotions with scent."}
+                            </div>
+                            <img src={introImg} style={{ width: '1150px', borderRadius: '35px' }} />
+                            <div style={{ marginTop: '200px' }}>
+                                <button onClick={() => changePage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', fontWeight: 700 }}>
+                                    {isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}
+                                </button>
+                                <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>
+                                    {isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Name Input Page (RESTORED) */}
-                {currentPage === 'nameInput' && (
-                    <div style={{ paddingTop: '150px', textAlign: 'center' }}>
-                        <h2 style={{ fontSize: isZH ? '120px' : '115px', color: '#B8860B', marginTop: '150px' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
-                        <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '80px' }}>{isZH ? '讓我們為您量身打造香氣體驗' : 'Let us tailor a scent experience just for you'}</div>
-                        
-                        <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '0 auto', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
-                            {playerName || (isZH ? '輸入姓名' : 'Your name')}
+                    {currentPage === 'nameInput' && (
+                        <div key="nameInput" style={{ paddingTop: '150px' }}>
+                            <h2 style={{ fontSize: isZH ? '120px' : '115px', color: '#B8860B', marginTop: '150px' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
+                            <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '80px' }}>{isZH ? '讓我們為您量身打造香氣體驗' : 'Let us tailor a scent experience just for you'}</div>
+                            <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '0 auto', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
+                                {playerName || (isZH ? '輸入姓名' : 'Your name')}
+                            </div>
+                            {/* 鍵盤代碼與之前一致... */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', marginTop: '100px', padding: '0 100px' }}>
+                                {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => (
+                                    <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', background: '#333', color: '#FFF', border: '2px solid #B8860B' }}>{l}</button>
+                                ))}
+                                <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#555', color: '#FFF' }}>DELETE</button>
+                                <button onClick={() => changePage(1)} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#B8860B', color: '#FFF', fontWeight: 700 }}>START</button>
+                            </div>
                         </div>
+                    )}
+                    
+                    {/* 其他頁面按此結構類推，確保加上 key 屬性以幫助 React 識別組件更新 */}
+                </div>
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', marginTop: '100px', padding: '0 100px' }}>
-                            {keyboardLetters.map(l => (
-                                <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', border: '2px solid #B8860B', background: '#333', color: '#FFF' }}>{l}</button>
-                            ))}
-                            <button onClick={() => setPlayerName(p => (p + ' ').slice(0, 10))} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', border: '2px solid #B8860B', background: '#333', color: '#FFF' }}>SPACE</button>
-                            <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', border: '2px solid #B8860B', background: '#333', color: '#FFF' }}>DELETE</button>
-                            <button onClick={() => setCurrentPage(1)} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#B8860B', color: '#FFF', border: 'none', fontWeight: 700 }}>
-                                {isZH ? '開始測試' : 'START'}
-                            </button>
-                        </div>
+                {/* 底部導航 */}
+                <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 200 }}>
+                    <button onClick={restartQuiz} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px' }}>{isZH ? '首頁' : 'Home'}</button>
+                    <div style={{ display: 'flex', gap: '30px' }}>
+                        <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px' }}>繁體</button>
+                        <button onClick={() => setCurrentLang('en')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px' }}>English</button>
                     </div>
-                )}
-
-                <FooterNav />
+                </div>
             </div>
         </div>
     );
