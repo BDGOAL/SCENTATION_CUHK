@@ -11,9 +11,7 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 * { box-sizing: border-box; }
-
 body, html {
     margin: 0; padding: 0;
     background-color: #1A1A1A;
@@ -21,23 +19,13 @@ body, html {
     -webkit-user-select: none; user-select: none;
     overflow: hidden;
 }
-
-body::-webkit-scrollbar { display: none; }
-body {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
 #root { 
     width: 2160px; height: 3840px; 
     background-color: #1A1A1A;
     opacity: 0; transition: opacity 0.5s ease-in;
 }
-
 button { cursor: pointer; transition: opacity 0.1s; }
 button:active { opacity: 0.8; }
-button:focus { outline: none; }
-
 #loading {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: #1A1A1A; color: #B8860B;
@@ -45,62 +33,29 @@ button:focus { outline: none; }
     font-size: 40px; font-family: 'Inter', sans-serif;
     z-index: 9999;
 }
-
-#fatal-error {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); color: #ff5555; z-index: 100000;
-    padding: 50px; font-size: 30px; white-space: pre-wrap; overflow: auto;
-}
 </style>
 </head>
 <body>
-<div id="fatal-error"></div>
 <div id="loading"><div>Loading System...</div></div>
 <div id="root"></div>
 
-<script>
-    window.onerror = function(msg, url, line) {
-        document.getElementById('loading').style.display = 'none';
-        const err = document.getElementById('fatal-error');
-        err.style.display = 'block';
-        err.innerHTML = "⚠️ System Error:\n" + msg + "\nLine: " + line;
-    };
-</script>
-
 <script type="text/babel">
-const { useState, useCallback } = React;
+const { useState, useEffect } = React;
 
-// --- 排版引擎 ---
+// --- Layout Engine ---
 const updateLayout = () => {
     const root = document.getElementById('root');
-    const body = document.body;
     if (!root) return;
-
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
     const targetW = 2160;
     const targetH = 3840;
-    const isMobile = screenW < 1000;
-
-    if (isMobile) {
-        body.style.overflow = 'hidden';
-        const scale = screenW / targetW;
-        root.style.position = 'absolute';
-        root.style.left = '0';
-        root.style.top = '0';
-        root.style.transformOrigin = 'top left';
-        root.style.transform = `scale(${scale})`;
-    } else {
-        body.style.overflow = 'hidden';
-        body.style.height = '100%';
-        const scale = Math.min(screenW / targetW, screenH / targetH);
-        root.style.position = 'absolute';
-        root.style.left = '50%';
-        root.style.top = '50%';
-        root.style.transformOrigin = 'center center';
-        root.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    }
-
+    const scale = Math.min(screenW / targetW, screenH / targetH);
+    root.style.position = 'absolute';
+    root.style.left = '50%';
+    root.style.top = '50%';
+    root.style.transformOrigin = 'center center';
+    root.style.transform = `translate(-50%, -50%) scale(${scale})`;
     root.style.opacity = 1;
     const loader = document.getElementById('loading');
     if(loader) loader.style.display = 'none';
@@ -108,23 +63,22 @@ const updateLayout = () => {
 
 window.addEventListener('load', updateLayout);
 window.addEventListener('resize', updateLayout);
-setTimeout(updateLayout, 300);
 
-// 圖片資源
+// Assets
 const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
 const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
 const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
 const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
+const instagramQR = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/sunshineatcuhk_osa_wacc_qr.png';
 
 const questionImages = {
     q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6857474.jpg',
-    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/4323542.jpg',
+    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/4323542.jpg', // 已更換插圖
     q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/419376795_3dc97a2e-e860-4c60-8f1a-9d615fd392bf.jpg',
     q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6731011.jpg',
     intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
 };
 
-// 結果數據 - 根據A選項數量
 const wellnessResults = {
     '4A': {
         bodySaysCN: '「我像一根被拉緊的琴弦，需要好好放鬆一下」',
@@ -135,16 +89,14 @@ const wellnessResults = {
         reminderEN: "You've working so hard lately. Now find a comfortable corner, take a deep breath, and rest like a great tree—steady and calm.",
         products: [
             {
-                nameCN: 'The Last Snow',
-                nameEN: 'The Last Snow',
-                descriptionCN: 'A light floral and woody fragrance with the concept of accepting a new challenge',
+                nameCN: 'The Last Snow', nameEN: 'The Last Snow',
+                descriptionCN: '帶有清淡花香與木質調，寓意勇敢接受新挑戰。',
                 descriptionEN: 'A light floral and woody fragrance with the concept of accepting a new challenge',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TLS2.png'
             },
             {
-                nameCN: 'The morning after I quit',
-                nameEN: 'The morning after I quit',
-                descriptionCN: 'It gives a warm and secure feeling just like hugging the blanket in your bed',
+                nameCN: 'The morning after I quit', nameEN: 'The morning after I quit',
+                descriptionCN: '給予溫暖與安全感，如同清晨躲在被窩中的擁抱。',
                 descriptionEN: 'It gives a warm and secure feeling just like hugging the blanket in your bed',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TMAIQ.png'
             }
@@ -159,16 +111,14 @@ const wellnessResults = {
         reminderEN: 'Seeing how hard you\'ve been striving truly moves me. Let this fragrance be a gentle embrace, reminding you: "You\'ve already put in lots of efforts. You deserve tender love."',
         products: [
             {
-                nameCN: 'It means no worries',
-                nameEN: 'It means no worries',
-                descriptionCN: 'A scent that emphasis friendliness and also recalling good memories that you will always like to remember',
+                nameCN: 'It means no worries', nameEN: 'It means no worries',
+                descriptionCN: '強調親切感，喚起那些你永遠想珍藏的美好回憶。',
                 descriptionEN: 'A scent that emphasis friendliness and also recalling good memories that you will always like to remember',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/IMNW2.png'
             },
             {
-                nameCN: 'White Michelia',
-                nameEN: 'White Michelia',
-                descriptionCN: 'A popular Hong Kong style fragrance that can remind you to appreciate things around you',
+                nameCN: '白蘭花 (White Michelia)', nameEN: 'White Michelia',
+                descriptionCN: '經典的香港味道，提醒我們去欣賞身邊細碎的美好。',
                 descriptionEN: 'A popular Hong Kong style fragrance that can remind you to appreciate things around you',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/White%20Michelia.webp'
             }
@@ -183,16 +133,14 @@ const wellnessResults = {
         reminderEN: 'You\'ve been working hard to balance everything! This fragrance is like a warm drink—comforting and whispering: "Take it slow, there\'s no need to chase perfection."',
         products: [
             {
-                nameCN: 'Me Time',
-                nameEN: 'Me Time',
-                descriptionCN: 'A calm fragrance that makes you lays back and find your own worth',
+                nameCN: 'Me Time', nameEN: 'Me Time',
+                descriptionCN: '寧靜的氣息，讓你放慢腳步，重新找回自我的價值。',
                 descriptionEN: 'A calm fragrance that makes you lays back and find your own worth',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Me%20time.webp'
             },
             {
-                nameCN: 'Evening Unwind',
-                nameEN: 'Evening Unwind',
-                descriptionCN: 'A light sweet fig that makes you appreciate your day',
+                nameCN: 'Evening Unwind', nameEN: 'Evening Unwind',
+                descriptionCN: '清甜的無花果香，讓你在一天結束之際學會感恩。',
                 descriptionEN: 'A light sweet fig that makes you appreciate your day',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Evening%20Unwind.webp'
             }
@@ -207,16 +155,14 @@ const wellnessResults = {
         reminderEN: 'You\'re handling things wonderfully! This fresh scent is like a gentle breeze, awakening your most relaxed and comfortable self.',
         products: [
             {
-                nameCN: 'Bouquet for today',
-                nameEN: 'Bouquet for today',
-                descriptionCN: 'The floral scent that is like a gift for yourself, reminding you that you have a gift in yourself everyday',
+                nameCN: 'Bouquet for today', nameEN: 'Bouquet for today',
+                descriptionCN: '如同送給自己的一束花，提醒你每天都擁有獨特的禮物。',
                 descriptionEN: 'The floral scent that is like a gift for yourself, reminding you that you have a gift in yourself everyday',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Bonquet%20of%20the%20day.webp'
             },
             {
-                nameCN: 'Pavilion White Tea',
-                nameEN: 'Pavilion White Tea',
-                descriptionCN: 'A sweet and elegant scent that represents happiness and chill',
+                nameCN: '亭亭白茶 (Pavilion White Tea)', nameEN: 'Pavilion White Tea',
+                descriptionCN: '優雅甜美的香氣，代表著生活中的幸福感與悠閒。',
                 descriptionEN: 'A sweet and elegant scent that represents happiness and chill',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Pavilion%20White%20Tea.webp'
             }
@@ -231,16 +177,14 @@ const wellnessResults = {
         reminderEN: 'You\'ve truly found a great rhythm. This fragrance is like the first ray of morning sunshine, carrying a light and joyful feeling to keep you moving forward.',
         products: [
             {
-                nameCN: 'I\'m Rich',
-                nameEN: 'I\'m Rich',
-                descriptionCN: 'This fragrance is about self affirmation that gives you confidence on "you can do it" spirit',
+                nameCN: 'I\'m Rich', nameEN: 'I\'m Rich',
+                descriptionCN: '關於自我肯定的氣息，賦予你「我能做到」的自信精神。',
                 descriptionEN: 'This fragrance is about self affirmation that gives you confidence on "you can do it" spirit',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/IR.png'
             },
             {
-                nameCN: 'Green serve',
-                nameEN: 'Green serve',
-                descriptionCN: 'A sportif scent that gives you energy and euphoria',
+                nameCN: 'Green serve', nameEN: 'Green serve',
+                descriptionCN: '充滿運動活力的氣息，帶來源源不絕的能量與愉悅感。',
                 descriptionEN: 'A sportif scent that gives you energy and euphoria',
                 image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Green%20serve.webp'
             }
@@ -263,7 +207,6 @@ const App = () => {
             intro: {
                 title: ['探索你的專屬香氣', '連結情緒與香氛'],
                 subtitle: ['香氣不是魔法', '但它會提醒你：「你值得被溫柔對待」'],
-                description: '',
                 button: '按此啟動 探索香氣'
             },
             nameInput: {
@@ -272,55 +215,24 @@ const App = () => {
                 placeholder: '輸入姓名',
                 button: '開始測試'
             },
-            exit: '✕',
             result: {
                 title: '你的身體在說',
                 scentTitle: '心理健康及輔導中心為你推薦的香調',
-                scentSubtitle: 'Recommended Scents from WACC',
                 reminderTitle: '給你的小叮嚀',
                 restart: '重新開始',
-                share: '分享結果'
+                next: '下一步'
             },
             questions: [
-                {
-                    id: 1,
-                    title: '最��的壓力就像：',
-                    options: [
-                        '腦子裡像開了99個瀏覽分頁，不斷想著要溫習。',
-                        '有時候能放鬆，還撐得住！'
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '',
-                    options: [
-                        '失眠，早上起來像喪屍一樣。',
-                        '睡得著，早上精神也不錯。'
-                    ]
-                },
-                {
-                    id: 3,
-                    title: '',
-                    options: [
-                        '有點低落，吃東西都沒味道。',
-                        '還是笑得出來。'
-                    ]
-                },
-                {
-                    id: 4,
-                    title: '',
-                    options: [
-                        '肩膀和脖子痠痛，爬樓梯會喘氣。',
-                        '活力充沛，從CC走上本部都沒問題。'
-                    ]
-                }
+                { id: 1, title: '最近的壓力就像：', options: ['腦子裡像開了99個瀏覽分頁，不斷想著要溫習。', '有時候能放鬆，還撐得住！'] },
+                { id: 2, title: '昨晚的睡眠狀態：', options: ['失眠，早上起來像喪屍一樣。', '睡得著，早上精神也不錯。'] },
+                { id: 3, title: '此刻的心情：', options: ['有點低落，吃東西都沒味道。', '還是笑得出來。'] },
+                { id: 4, title: '身體的能量水平：', options: ['肩膀和脖子痠痛，爬樓梯會喘氣。', '活力充沛，從CC走上本部都沒問題。'] }
             ]
         },
         'en': {
             intro: {
                 title: ['Explore your unique scent,', 'connecting emotions with scent.'],
                 subtitle: ['Fragrance may not be magic,', 'but it reminds you to be gentle with yourself'],
-                description: '',
                 button: 'Discover Your Unique Scent'
             },
             nameInput: {
@@ -329,737 +241,186 @@ const App = () => {
                 placeholder: 'Your name',
                 button: 'Start Now'
             },
-            exit: '✕',
             result: {
                 title: 'What Your Body Says',
                 scentTitle: 'Recommended Scents from WACC',
-                scentSubtitle: '心理健康及輔導中心為你推薦的香調',
                 reminderTitle: 'A Gentle Reminder for You',
                 restart: 'Restart',
-                share: 'Share'
+                next: 'Next'
             },
             questions: [
-                {
-                    id: 1,
-                    title: 'Recent stress feels like:',
-                    options: [
-                        'Brain running 99 tabs, can\'t stop thinking about studying',
-                        'Still chill enough, holding up fine!'
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '',
-                    options: [
-                        'Insomnia, zombie mode in morning',
-                        'Can sleep, morning energy good'
-                    ]
-                },
-                {
-                    id: 3,
-                    title: '',
-                    options: [
-                        'Feeling gray, food tastes blah',
-                        'Still smiling at times'
-                    ]
-                },
-                {
-                    id: 4,
-                    title: '',
-                    options: [
-                        'Neck hurts, stairs make me gasp',
-                        'Full energy, can hike up campus hill'
-                    ]
-                }
+                { id: 1, title: 'Recent stress feels like:', options: ['Brain running 99 tabs, can\'t stop thinking about studying', 'Still chill enough, holding up fine!'] },
+                { id: 2, title: 'Sleep quality last night:', options: ['Insomnia, zombie mode in morning', 'Can sleep, morning energy good'] },
+                { id: 3, title: 'Current mood status:', options: ['Feeling gray, food tastes blah', 'Still smiling at times'] },
+                { id: 4, title: 'Physical energy level:', options: ['Neck hurts, stairs make me gasp', 'Full energy, can hike up campus hill'] }
             ]
         }
     };
 
     const t = texts[currentLang];
     
-    const calculateResult = (allAnswers) => {
-        const aCount = allAnswers.filter(a => a === 'A').length;
-        const resultKey = `${aCount}A`;
-        return wellnessResults[resultKey];
-    };
-
     const handleAnswer = (questionId, choice) => {
         const newAnswers = [...answers, choice];
         setAnswers(newAnswers);
-        
-        const nextId = questionId + 1;
-        console.log('Question:', questionId, 'Choice:', choice, 'Answers:', newAnswers);
-        
-        if (nextId <= 4) {
-            setTimeout(() => {
-                setCurrentPage(nextId);
-            }, 300);
+        if (questionId < 4) {
+            setTimeout(() => setCurrentPage(questionId + 1), 300);
         } else {
-            // 計算結果
-            const finalResult = calculateResult(newAnswers);
-            setResult(finalResult);
-            setTimeout(() => {
-                setCurrentPage('result');
-            }, 300);
+            const aCount = newAnswers.filter(a => a === 'A').length;
+            setResult(wellnessResults[`${aCount}A`]);
+            setTimeout(() => setCurrentPage('result'), 300);
         }
     };
 
     const restartQuiz = () => {
-        setAnswers([]);
-        setResult(null);
-        setPlayerName('');
-        setCurrentPage('intro');
+        setAnswers([]); setResult(null); setPlayerName('');
+        setShowInstagram(false); setCurrentPage('intro');
     };
 
-    return (
-        <div style={{ position: 'relative', width: '2160px', height: '3840px', boxSizing: 'border-box' }}>
-            {/* Background Pattern */}
-            <div style={{ position: 'absolute', width: '100%', height: '100%', left: 0, top: 0 }}>
-                <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" 
-                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Background" />
+    const Header = () => (
+        <div style={{ position: 'absolute', width: '100%', top: 0, zIndex: 100 }}>
+            <div style={{ width: '100%', height: '300px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src={cuhkLogo} style={{ height: '220px', objectFit: 'contain' }} alt="CUHK" />
             </div>
+        </div>
+    );
 
-            {/* Card Container */}
+    return (
+        <div style={{ position: 'relative', width: '2160px', height: '3840px', overflow: 'hidden' }}>
+            <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover' }} />
+            
             <div style={{
-                position: 'absolute',
-                width: '1722px',
-                height: '3392px',
-                left: currentPage === 'intro' ? '220px' : '219px',
-                top: currentPage === 'intro' ? '222px' : '216px',
+                position: 'absolute', width: '1850px', height: '3450px', left: '155px', top: '195px',
                 background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)',
-                boxShadow: '0px 0px 39.9px 1px #D4AF37',
-                borderRadius: '35px',
+                boxShadow: '0px 0px 50px 10px #D4AF37', borderRadius: '40px', overflow: 'hidden'
             }}>
-                {/* CUHK Logo (all pages) */}
-                <div style={{
-                    position: 'absolute',
-                    top: '20px',
-                    zIndex: 10,
-                    width: '75%',
-                    left: '12.5%'
-                }}>
-                    <img src={cuhkLogo} 
-                         style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block' }} 
-                         alt="CUHK Wellness Centre" />
-                </div>
+                <Header />
 
-                {/* Language Switcher */}
-                {currentPage !== 'result' && (
-                    <div style={{
-                        position: 'absolute',
-                        width: '553.5px',
-                        height: '108px',
-                        right: currentPage === 'intro' ? '80px' : '60px',
-                        bottom: '80px',
-                        zIndex: 50
-                    }}>
-                        <div style={{ position: 'absolute', width: '266px', height: '108px', left: 0, top: 0 }}>
-                            <div style={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                borderRadius: '25px',
-                                background: currentLang === 'zh-TW' ? '#B8860B' : '#383838'
-                            }}></div>
-                            <button onClick={() => setCurrentLang('zh-TW')} style={{
-                                position: 'absolute', width: '100%', height: '100%',
-                                background: 'transparent', border: 'none', color: '#FFF',
-                                fontSize: '50px', fontFamily: "'Inter', sans-serif"
-                            }}>繁體</button>
-                        </div>
-                        <div style={{ position: 'absolute', width: '266px', height: '108px', left: '286px', top: 0 }}>
-                            <div style={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                borderRadius: '25px',
-                                background: currentLang === 'en' ? '#B8860B' : '#383838'
-                            }}></div>
-                            <button onClick={() => setCurrentLang('en')} style={{
-                                position: 'absolute', width: '100%', height: '100%',
-                                background: 'transparent', border: 'none', color: '#FFF',
-                                fontSize: '50px', fontFamily: "'Inter', sans-serif"
-                            }}>English</button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Exit Button */}
-                {currentPage !== 'intro' && currentPage !== 'nameInput' && currentPage !== 'result' && (
-                    <div style={{ position: 'absolute', left: '74px', top: '71px', zIndex: 52 }}>
-                        <div style={{
-                            position: 'absolute', width: '132px', height: '132px',
-                            border: '5px solid #B8860B', borderRadius: '50%', boxSizing: 'border-box'
-                        }}></div>
-                        <button onClick={() => setCurrentPage('intro')} style={{
-                            position: 'absolute', width: '132px', height: '132px',
-                            background: 'transparent', border: 'none', color: '#B8860B',
-                            fontSize: '60px', fontFamily: "'Inter', sans-serif"
-                        }}>{t.exit}</button>
-                    </div>
-                )}
-
-                {/* Intro Page */}
+                {/* Intro */}
                 {currentPage === 'intro' && (
-                    <>
-                        <div style={{
-                            position: 'absolute', width: '1330px', height: '38px',
-                            left: 'calc(50% - 1330px/2)', top: currentLang === 'en' ? '450px' : '470px'
-                        }}>
-                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '6px solid #B8860B' }}></div>
-                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '12px solid #B8860B' }}></div>
+                    <div style={{ padding: '400px 100px', textAlign: 'center', color: '#B8860B' }}>
+                        <div style={{ fontSize: currentLang === 'en' ? '54px' : '70px', marginTop: '100px', lineHeight: '1.5' }}>
+                            {t.intro.subtitle[0]}<br/>{t.intro.subtitle[1]}
                         </div>
-
-                        <div style={{
-                            position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)',
-                            top: currentLang === 'en' ? '560px' : '555px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '64px',
-                            textAlign: 'center', color: '#B8860B', lineHeight: currentLang === 'en' ? '54px' : '77px'
-                        }}>
-                            {t.intro.subtitle[0]}
-                            <br />
-                            {t.intro.subtitle[1]}
+                        <div style={{ fontSize: currentLang === 'en' ? '110px' : '150px', fontWeight: 700, margin: '150px 0', lineHeight: '1.2' }}>
+                            {t.intro.title[0]}<br/>{t.intro.title[1]}
                         </div>
-
-                        <div style={{
-                            position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)',
-                            top: currentLang === 'en' ? '710px' : '795px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '84px' : '150px',
-                            lineHeight: currentLang === 'en' ? '98px' : '182px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>
-                            {t.intro.title[0]}
-                            <br />
-                            {t.intro.title[1]}
-                        </div>
-
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)',
-                            top: currentLang === 'en' ? '860px' : '890px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '38px' : '44px',
-                            lineHeight: currentLang === 'en' ? '58px' : '1.2',
-                            textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-wrap'
-                        }}>{t.intro.description}</div>
-
-                        <div style={{
-                            position: 'absolute', width: '1331px', height: '38px',
-                            left: 'calc(50% - 1331px/2 + 0.5px)', top: currentLang === 'en' ? '1010px' : '1180px'
-                        }}>
-                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '0px', border: '12px solid #B8860B' }}></div>
-                            <div style={{ position: 'absolute', width: '100%', height: '0px', top: '38px', border: '6px solid #B8860B' }}></div>
-                        </div>
-
-                        <div style={{
-                            position: 'absolute', width: '1148px', height: '1200px',
-                            left: 'calc(50% - 1148px/2)', top: currentLang === 'en' ? '1110px' : '1279px',
-                            borderRadius: '25px', overflow: 'hidden'
-                        }}>
-                            <img src={questionImages.intro} 
-                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Intro" />
-                        </div>
-
+                        <img src={questionImages.intro} style={{ width: '1200px', borderRadius: '30px' }} />
                         <button onClick={() => setCurrentPage('nameInput')} style={{
-                            position: 'absolute', width: '1050px', height: '210px',
-                            left: 'calc(50% - 1050px/2)', top: currentLang === 'en' ? '2050px' : '2232px',
-                            background: '#B8860B', boxShadow: '0px 0px 18px 9px #FFFFFF',
-                            borderRadius: '25px', border: 'none',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '62px' : '96px', color: '#FFFFFF'
+                            marginTop: '200px', width: '1100px', height: '220px', background: '#B8860B',
+                            color: '#FFF', fontSize: '80px', borderRadius: '30px', border: 'none', fontWeight: 700,
+                            boxShadow: '0 0 30px rgba(255,255,255,0.4)'
                         }}>{t.intro.button}</button>
-
-                        <div style={{
-                            position: 'absolute', width: '1148px', height: '110px',
-                            left: '287px', top: currentLang === 'en' ? '2280px' : '2479px',
-                            background: '#FFFFFF', borderRadius: '0px 0px 25px 25px'
-                        }}></div>
-
-                        <div style={{
-                            position: 'absolute', width: '1000px', left: 'calc(50% - 1000px/2)',
-                            top: currentLang === 'en' ? '2310px' : '2502px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '28px' : '55px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>
-                            {currentLang === 'zh-TW' ? '*點擊上方按鈕開始您的香味測試' : '*Tap the button above to start your scent quiz'}
-                        </div>
-                    </>
+                    </div>
                 )}
 
-                {/* Name Input Page */}
+                {/* Name Input */}
                 {currentPage === 'nameInput' && (
-                    <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 60 }}>
-                        <div style={{
-                            position: 'absolute', width: '1482px', left: 'calc(50% - 1482px/2)', top: '650px',
-                            fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '110px' : '130px',
-                            textAlign: 'center', color: '#B8860B'
-                        }}>{t.nameInput.title}</div>
-
-                        <div style={{
-                            position: 'absolute', width: '1280px', left: 'calc(50% - 1280px/2)', top: '880px',
-                            fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '56px',
-                            textAlign: 'center', color: '#FFFFFF'
-                        }}>{t.nameInput.subtitle}</div>
-
-                        <div style={{
-                            position: 'absolute', width: '900px', height: '140px',
-                            left: 'calc(50% - 900px/2)', top: '1100px',
-                            background: '#FFFFFF', borderRadius: '25px',
-                            display: 'flex', alignItems: 'center', padding: '0 40px', boxSizing: 'border-box'
-                        }}>
-                            <div style={{
-                                fontFamily: "'Inter', sans-serif", fontSize: '56px',
-                                color: playerName ? '#1A1A1A' : '#999999'
-                            }}>{playerName || t.nameInput.placeholder}</div>
-                            <span style={{ marginLeft: '10px', color: '#1A1A1A' }}>|</span>
+                    <div style={{ paddingTop: '500px', textAlign: 'center' }}>
+                        <h2 style={{ fontSize: '120px', color: '#B8860B' }}>{t.nameInput.title}</h2>
+                        <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '100px' }}>{t.nameInput.subtitle}</div>
+                        <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '0 auto', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {playerName || t.nameInput.placeholder}
                         </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', marginTop: '100px', padding: '0 100px' }}>
+                            {keyboardLetters.map(l => (
+                                <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '20px', border: '2px solid #B8860B', background: '#333', color: '#FFF' }}>{l}</button>
+                            ))}
+                            <button onClick={() => setPlayerName('')} style={{ width: '450px', height: '145px', fontSize: '50px', borderRadius: '20px', background: '#555', color: '#FFF', border: 'none' }}>CLEAR</button>
+                            <button onClick={() => setCurrentPage(1)} style={{ width: '450px', height: '145px', fontSize: '50px', borderRadius: '20px', background: '#B8860B', color: '#FFF', border: 'none' }}>{t.nameInput.button}</button>
+                        </div>
+                    </div>
+                )}
 
-                        <div style={{
-                            position: 'absolute', width: '1400px', left: 'calc(50% - 1400px/2)', top: '1350px',
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px'
-                        }}>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-                                {keyboardLetters.map((l) => (
-                                    <button key={l} onClick={() => setPlayerName(p => (p + l).slice(0, 10))} style={{
-                                        width: '150px', height: '150px', borderRadius: '30px',
-                                        border: '3px solid #B8860B', background: '#2B2B2B',
-                                        fontFamily: "'Inter', sans-serif", fontWeight: 600,
-                                        fontSize: '72px', color: '#FFFFFF'
-                                    }}>{l}</button>
+                {/* Questions */}
+                {[1,2,3,4].includes(currentPage) && (
+                    <div style={{ paddingTop: '450px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '50px' }}>
+                            {currentLang === 'zh-TW' ? '請選擇一個最接近你目前狀況的句子：' : 'Choose the sentence that best fits you:'}
+                        </div>
+                        {/* Progress Bar */}
+                        <div style={{ width: '1400px', height: '30px', background: '#333', margin: '0 auto', borderRadius: '15px' }}>
+                            <div style={{ width: `${currentPage * 25}%`, height: '100%', background: '#B8860B', borderRadius: '15px', transition: '0.3s' }}></div>
+                        </div>
+                        {/* 修正：顯示對應問題的標題 */}
+                        <h2 style={{ fontSize: '90px', color: '#B8860B', margin: '80px 0' }}>{t.questions[currentPage-1].title}</h2>
+                        
+                        <img src={questionImages[`q${currentPage}`]} style={{ height: '1000px', objectFit: 'contain', marginBottom: '100px' }} />
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '50px', alignItems: 'center' }}>
+                            {['A', 'B'].map((opt, idx) => (
+                                <button key={opt} onClick={() => handleAnswer(currentPage, opt)} style={{
+                                    width: '1400px', minHeight: '220px', background: 'transparent', border: '5px solid #FFF',
+                                    borderRadius: '30px', color: '#FFF', fontSize: '65px', padding: '40px', display: 'flex', alignItems: 'center'
+                                }}>
+                                    <img src={idx === 0 ? iconA : iconB} style={{ width: '120px', marginRight: '40px' }} />
+                                    <span style={{ textAlign: 'left' }}>{t.questions[currentPage-1].options[idx]}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Result */}
+                {currentPage === 'result' && !showInstagram && (
+                    <div style={{ paddingTop: '400px', textAlign: 'center' }}>
+                        <div style={{ width: '500px', height: '500px', borderRadius: '50%', background: '#FFF', margin: '0 auto', border: '10px solid #D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={walkWithYouLogo} style={{ width: '80%' }} />
+                        </div>
+                        <h2 style={{ fontSize: '110px', color: '#D4AF37', margin: '50px 0' }}>{t.result.title}</h2>
+                        <div style={{ fontSize: '60px', color: '#B8860B', fontStyle: 'italic', padding: '0 200px', marginBottom: '80px' }}>
+                            {currentLang === 'zh-TW' ? result.bodySaysCN : result.bodySaysEN}
+                        </div>
+                        
+                        <div style={{ width: '1600px', background: 'rgba(212,175,55,0.1)', margin: '0 auto', borderRadius: '40px', border: '5px solid #D4AF37', paddingBottom: '60px' }}>
+                            <div style={{ background: '#D4AF37', color: '#FFF', fontSize: '60px', padding: '40px', fontWeight: 700 }}>{t.result.scentTitle}</div>
+                            <div style={{ fontSize: '80px', color: '#FFF', margin: '60px 0', fontWeight: 700 }}>
+                                {currentLang === 'zh-TW' ? result.scentCN : result.scentEN}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '80px' }}>
+                                {result.products.map((p, i) => (
+                                    <div key={i} style={{ width: '650px', background: '#D4AF37', borderRadius: '30px', padding: '20px' }}>
+                                        <img src={p.image} style={{ width: '100%', borderRadius: '20px', background: '#FFF' }} />
+                                        <div style={{ fontSize: '50px', color: '#FFF', fontWeight: 700, margin: '20px 0' }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
+                                        <div style={{ fontSize: '36px', color: '#FFF', lineHeight: '1.4' }}>{currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}</div>
+                                    </div>
                                 ))}
                             </div>
-
-                            <div style={{ display: 'flex', gap: '40px', marginTop: '10px' }}>
-                                <button onClick={() => setPlayerName(p => (p + ' ').slice(0, 10))} style={{
-                                    width: '390px', height: '150px', borderRadius: '30px',
-                                    border: '3px solid #B8860B', background: '#2B2B2B',
-                                    fontFamily: "'Inter', sans-serif", fontWeight: 500,
-                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF'
-                                }}>{currentLang === 'zh-TW' ? '空白' : 'Space'}</button>
-                                <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{
-                                    width: '390px', height: '150px', borderRadius: '30px',
-                                    border: '3px solid #B8860B', background: '#2B2B2B',
-                                    fontFamily: "'Inter', sans-serif", fontWeight: 500,
-                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF'
-                                }}>{currentLang === 'zh-TW' ? '刪除' : 'Delete'}</button>
-                                <button onClick={() => setCurrentPage(1)} style={{
-                                    width: '390px', height: '150px', borderRadius: '30px', border: 'none',
-                                    background: '#B8860B', fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                                    fontSize: currentLang === 'en' ? '60px' : '66px', color: '#FFFFFF',
-                                    boxShadow: '0 0 18px 6px rgba(255,255,255,0.3)'
-                                }}>{t.nameInput.button}</button>
-                            </div>
                         </div>
-                    </div>
-                )}
 
-                {/* Question Pages */}
-                {[1, 2, 3, 4].map(qId => {
-                    const q = t.questions[qId - 1];
-                    const progressWidths = [366, 692, 1081, 1400];
-                    
-                    return currentPage === qId && (
-                        <div key={qId}>
-                            <div style={{
-                                position: 'absolute', width: '1280px', left: '220px', top: '676px',
-                                fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '48px' : '64px',
-                                textAlign: 'center', color: '#FFFFFF'
-                            }}>{currentLang === 'zh-TW' ? '請選擇一個最接近你目前狀況的句子：' : 'Please choose a sentence which is closer to your current condition:'}</div>
-
-                            <div style={{
-                                position: 'absolute', width: '1400px', height: '48px',
-                                left: '160px', top: currentLang === 'en' ? '828px' : '804px',
-                                background: '#333', borderRadius: '43px'
-                            }}>
-                                <div style={{
-                                    width: `${progressWidths[qId - 1]}px`,
-                                    height: '100%',
-                                    background: '#B8860B',
-                                    borderRadius: '43px',
-                                    transition: 'width 0.5s'
-                                }}></div>
-                            </div>
-
-                            <div style={{
-                                position: 'absolute', width: '1182px',
-                                left: 'calc(50% - 1182px/2)', top: currentLang === 'en' ? '1018px' : '994px',
-                                fontFamily: "'Inter', sans-serif", fontWeight: 700,
-                                fontSize: currentLang === 'en' ? '80px' : '96px',
-                                textAlign: 'center', color: '#B8860B', whiteSpace: 'pre-line'
-                            }}>{q.title}</div>
-
-                            <div style={{
-                                position: 'absolute', width: '1100px', height: '1100px',
-                                left: 'calc(50% - 550px)', top: currentLang === 'en' ? '1248px' : '1198px',
-                                borderRadius: '25px', overflow: 'hidden'
-                            }}>
-                                <img src={questionImages[`q${qId}`]} 
-                                     style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-                                     alt={`Question ${qId}`} />
-                            </div>
-
-                            <div style={{
-                                position: 'absolute', width: '1449px',
-                                left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2430px' : '2380px'
-                            }}>
-                                <img src={iconA} style={{
-                                    position: 'absolute', left: '0px', top: '10px',
-                                    width: '120px', transform: 'scale(1.2)'
-                                }} alt="Option A" />
-                                <button onClick={() => handleAnswer(qId, 'A')} style={{
-                                    position: 'absolute', left: '160px', width: '1288px',
-                                    height: currentLang === 'en' ? '260px' : '245px',
-                                    border: '6px solid #FFF', borderRadius: '25px',
-                                    background: 'transparent'
-                                }}>
-                                    <div style={{
-                                        fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px',
-                                        padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line'
-                                    }}>{q.options[0]}</div>
-                                </button>
-                            </div>
-
-                            <div style={{
-                                position: 'absolute', width: '1449px',
-                                left: 'calc(50% - 1449px/2)', top: currentLang === 'en' ? '2737px' : '2672px'
-                            }}>
-                                <img src={iconB} style={{
-                                    position: 'absolute', left: '0px', top: '10px',
-                                    width: '120px', transform: 'scale(1.2)'
-                                }} alt="Option B" />
-                                <button onClick={() => handleAnswer(qId, 'B')} style={{
-                                    position: 'absolute', left: '160px', width: '1288px',
-                                    height: currentLang === 'en' ? '260px' : '242px',
-                                    border: '6px solid #FFF', borderRadius: '25px',
-                                    background: 'transparent'
-                                }}>
-                                    <div style={{
-                                        fontFamily: "'Inter', sans-serif", fontSize: currentLang === 'en' ? '50px' : '70px',
-                                        padding: '0 10px', textAlign: 'center', color: '#FFFFFF', whiteSpace: 'pre-line'
-                                    }}>{q.options[1]}</div>
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
-
-                {/* Result Page */}
-                {currentPage === 'result' && result && !showInstagram && (
-                    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-                        {/* 內容層 */}
-                        <div style={{ 
-                            position: 'relative',
-                            zIndex: 2,
-                            display: 'flex', 
-                            flexDirection: 'column', 
-                            alignItems: 'center', 
-                            paddingTop: '276px',
-                            paddingBottom: '100px'
-                        }}>
-                            {/* Walk with You Icon in Circle */}
-                            <div style={{
-                                width: '600px',
-                                height: '600px',
-                                borderRadius: '50%',
-                                overflow: 'hidden',
-                                border: '8px solid #D4AF37',
-                                marginBottom: '40px',
-                                boxShadow: '0 0 40px rgba(212, 175, 55, 0.5)',
-                                background: '#FFFFFF',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <img src={walkWithYouLogo} style={{ width: '80%', height: 'auto', objectFit: 'contain' }} alt="Walk with You" />
-                            </div>
-
-                            {/* 標題：你的身體在說 */}
-                            <div style={{ 
-                                fontFamily: "'Inter', sans-serif", 
-                                fontWeight: 700, 
-                                fontSize: currentLang === 'en' ? '88px' : '105px', 
-                                textAlign: 'center', 
-                                color: '#D4AF37', 
-                                marginBottom: '20px' 
-                            }}>
-                                {t.result.title}
-                            </div>
-                            <div style={{ width: '779px', height: '0', border: '6px solid #D4AF37', marginBottom: '40px' }}></div>
-
-                            {/* 身體在說的話 */}
-                            <div style={{ 
-                                width: currentLang === 'en' ? '1488px' : '1188px', 
-                                fontFamily: "'Inter', sans-serif", 
-                                fontSize: currentLang === 'en' ? '46px' : '55px', 
-                                textAlign: 'center', 
-                                color: '#B8860B', 
-                                fontStyle: 'italic',
-                                marginBottom: '60px'
-                            }}>
-                                {currentLang === 'zh-TW' ? result.bodySaysCN : result.bodySaysEN}
-                            </div>
-
-                            {/* 推薦標題 */}
-                            <div style={{ 
-                                width: '1412px', 
-                                height: '115px', 
-                                background: '#D4AF37', 
-                                borderRadius: '25px 25px 0 0', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center', 
-                                fontFamily: "'Inter', sans-serif", 
-                                fontWeight: 700, 
-                                fontSize: currentLang === 'en' ? '54px' : '64px', 
-                                color: '#FFFFFF',
-                                flexShrink: 0
-                            }}>
-                                {t.result.scentTitle}
-                            </div>
-
-                            {/* 產品容器 */}
-                            <div style={{ 
-                                width: '1412px', 
-                                boxSizing: 'border-box', 
-                                border: '6px solid #D4AF37', 
-                                borderRadius: '0 0 25px 25px',
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                padding: '50px 70px',
-                                background: 'rgba(26, 26, 26, 0.8)',
-                                marginBottom: '60px'
-                            }}>
-                                {/* 香調名稱 */}
-                                <div style={{ 
-                                    fontFamily: "'Inter', sans-serif", 
-                                    fontSize: currentLang === 'en' ? '56px' : '70px',
-                                    fontWeight: 700,
-                                    textAlign: 'center', 
-                                    color: '#FFFFFF',
-                                    marginBottom: '60px'
-                                }}>
-                                    {currentLang === 'zh-TW' ? result.scentCN : result.scentEN}
-                                </div>
-
-                                {/* 產品卡片 */}
-                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: '100px', width: '100%' }}>
-                                    {result.products.map((p, i) => (
-                                        <div key={i} style={{ 
-                                            width: '520px', 
-                                            background: '#D4AF37', 
-                                            borderRadius: '25px', 
-                                            padding: '15px', 
-                                            display: 'flex', 
-                                            flexDirection: 'column', 
-                                            alignItems: 'center' 
-                                        }}>
-                                            {/* 香水圖片位置 - 正方形 */}
-                                            <div style={{ 
-                                                width: '458px', 
-                                                height: '458px', 
-                                                borderRadius: '25px', 
-                                                overflow: 'hidden', 
-                                                display:'flex', 
-                                                alignItems:'center', 
-                                                justifyContent:'center', 
-                                                background:'#FFFFFF', 
-                                                marginBottom: '20px',
-                                                border: '2px solid #FFFFFF',
-                                                boxSizing: 'border-box'
-                                            }}>
-                                                {p.image && (
-                                                    <img src={p.image} 
-                                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                                         alt={p.nameEN} />
-                                                )}
-                                            </div>
-                                            <div style={{ 
-                                                fontFamily: "'Inter', sans-serif", 
-                                                fontWeight: 700, 
-                                                fontSize: currentLang === 'en' ? '40px' : '45px', 
-                                                color: '#FFFFFF', 
-                                                textAlign: 'center',
-                                                marginBottom: '10px'
-                                            }}>{currentLang === 'zh-TW' ? p.nameCN : p.nameEN}</div>
-                                            <div style={{ 
-                                                fontFamily: "'Inter', sans-serif", 
-                                                fontSize: currentLang === 'en' ? '32px' : '36px', 
-                                                lineHeight: '1.3', 
-                                                color: '#FFFFFF', 
-                                                textAlign: 'center', 
-                                                whiteSpace: 'pre-wrap', 
-                                                wordWrap: 'break-word',
-                                                padding: '0 15px'
-                                            }}>
-                                                {currentLang === 'zh-TW' ? p.descriptionCN : p.descriptionEN}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* 小叮嚀標題 */}
-                            <div style={{ 
-                                fontFamily: "'Inter', sans-serif", 
-                                fontWeight: 700, 
-                                fontSize: currentLang === 'en' ? '70px' : '80px', 
-                                textAlign: 'center', 
-                                color: '#D4AF37', 
-                                marginBottom: '30px' 
-                            }}>
-                                {t.result.reminderTitle}
-                            </div>
-
-                            {/* 小叮嚀內容 */}
-                            <div style={{ 
-                                width: currentLang === 'en' ? '1488px' : '1188px', 
-                                fontFamily: "'Inter', sans-serif", 
-                                fontSize: currentLang === 'en' ? '42px' : '50px', 
-                                textAlign: 'center', 
-                                color: '#FFFFFF', 
-                                whiteSpace: 'pre-wrap', 
-                                wordWrap: 'break-word',
-                                marginBottom: '60px',
-                                lineHeight: '1.4'
-                            }}>
+                        <div style={{ marginTop: '80px', padding: '0 150px' }}>
+                            <div style={{ fontSize: '70px', color: '#D4AF37', fontWeight: 700 }}>{t.result.reminderTitle}</div>
+                            <div style={{ fontSize: '48px', color: '#FFF', marginTop: '30px', lineHeight: '1.6' }}>
                                 {currentLang === 'zh-TW' ? result.reminderCN : result.reminderEN}
                             </div>
+                        </div>
 
-                            {/* 底部按鈕 */}
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '50px', marginTop: '20px' }}>
-                                <button onClick={restartQuiz} style={{ 
-                                    width: currentLang === 'en' ? '500px' : '440px', 
-                                    height: '123px', 
-                                    background: '#D4AF37', 
-                                    borderRadius: '25px', 
-                                    border: 'none', 
-                                    fontFamily: "'Inter', sans-serif", 
-                                    fontWeight: 700, 
-                                    fontSize: currentLang === 'en' ? '60px' : '70px', 
-                                    color: '#FFFFFF' 
-                                }}>{t.result.restart}</button>
-                                <button onClick={() => setShowInstagram(true)} style={{ 
-                                    width: currentLang === 'en' ? '500px' : '440px', 
-                                    height: '123px', 
-                                    background: '#B8860B', 
-                                    borderRadius: '25px', 
-                                    border: 'none', 
-                                    fontFamily: "'Inter', sans-serif", 
-                                    fontWeight: 700, 
-                                    fontSize: currentLang === 'en' ? '60px' : '70px', 
-                                    color: '#FFFFFF',
-                                    boxShadow: '0 0 18px 6px rgba(255,255,255,0.3)'
-                                }}>{currentLang === 'zh-TW' ? '下一步' : 'Next'}</button>
-                            </div>
+                        <div style={{ marginTop: '100px', display: 'flex', justifyContent: 'center', gap: '50px' }}>
+                            <button onClick={restartQuiz} style={{ width: '500px', height: '150px', borderRadius: '30px', border: 'none', background: '#888', color: '#FFF', fontSize: '60px' }}>{t.result.restart}</button>
+                            <button onClick={() => setShowInstagram(true)} style={{ width: '500px', height: '150px', borderRadius: '30px', border: 'none', background: '#B8860B', color: '#FFF', fontSize: '60px' }}>{t.result.next}</button>
                         </div>
                     </div>
                 )}
 
-                {/* Instagram QR Code Page */}
-                {currentPage === 'result' && result && showInstagram && (
-                    <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                        {/* Exit Button */}
-                        <div style={{ position: 'absolute', left: '74px', top: '71px', zIndex: 52 }}>
-                            <div style={{
-                                position: 'absolute', width: '132px', height: '132px',
-                                border: '5px solid #B8860B', borderRadius: '50%', boxSizing: 'border-box'
-                            }}></div>
-                            <button onClick={() => setShowInstagram(false)} style={{
-                                position: 'absolute', width: '132px', height: '132px',
-                                background: 'transparent', border: 'none', color: '#B8860B',
-                                fontSize: '60px', fontFamily: "'Inter', sans-serif"
-                            }}>✕</button>
+                {/* Instagram Page */}
+                {showInstagram && (
+                    <div style={{ paddingTop: '500px', textAlign: 'center' }}>
+                        <h2 style={{ fontSize: '110px', color: '#D4AF37' }}>{currentLang === 'zh-TW' ? '關注我們的 Instagram' : 'Follow Us on Instagram'}</h2>
+                        <div style={{ fontSize: '55px', color: '#FFF', margin: '50px 200px', lineHeight: '1.4' }}>
+                            {currentLang === 'zh-TW' ? '掃描QR Code關注我們，以獲取更多心理健康小貼士及資源' : 'Scan to follow us for more wellness tips and mental health resources'}
                         </div>
-
-                        {/* 標題 */}
-                        <div style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontWeight: 700,
-                            fontSize: currentLang === 'en' ? '88px' : '100px',
-                            textAlign: 'center',
-                            color: '#D4AF37',
-                            marginBottom: '30px'
-                        }}>
-                            {currentLang === 'zh-TW' ? '關注我們的 Instagram' : 'Follow Us on Instagram'}
+                        <div style={{ width: '900px', height: '900px', background: '#FFF', margin: '80px auto', borderRadius: '40px', padding: '50px', boxShadow: '0 0 50px #D4AF37' }}>
+                            <img src={instagramQR} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
-
-                        {/* 副標題 */}
-                        <div style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontSize: currentLang === 'en' ? '48px' : '56px',
-                            textAlign: 'center',
-                            color: '#FFFFFF',
-                            marginBottom: '80px',
-                            width: '1200px'
-                        }}>
-                            {currentLang === 'zh-TW' ? '掃描QR Code關注我們，以獲取更多心理健康小貼士及資源' : 'Scan the QR code to follow us for more wellness tips and mental health resources'}
-                        </div>
-
-                        {/* QR Code容器 */}
-                        <div style={{
-                            width: '800px',
-                            height: '800px',
-                            background: '#FFFFFF',
-                            borderRadius: '25px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: '60px',
-                            boxShadow: '0 0 40px rgba(212, 175, 55, 0.5)'
-                        }}>
-                            {/* Instagram QR Code需要由您提供圖片 */}
-                            <div style={{
-                                fontFamily: "'Inter', sans-serif",
-                                fontSize: '32px',
-                                color: '#999',
-                                textAlign: 'center',
-                                padding: '40px'
-                            }}>
-                                Instagram QR Code<br/>
-                                @sunshineatcuhk_osa_wacc
-                            </div>
-                        </div>
-
-                        {/* Instagram Handle */}
-                        <div style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontSize: '46px',
-                            textAlign: 'center',
-                            color: '#B8860B',
-                            marginBottom: '80px'
-                        }}>
-                            @sunshineatcuhk_osa_wacc
-                        </div>
-
-                        {/* 底部按鈕 */}
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '50px' }}>
-                            <button onClick={() => setShowInstagram(false)} style={{
-                                width: currentLang === 'en' ? '480px' : '420px',
-                                height: '123px',
-                                background: '#D4AF37',
-                                borderRadius: '25px',
-                                border: 'none',
-                                fontFamily: "'Inter', sans-serif",
-                                fontWeight: 700,
-                                fontSize: currentLang === 'en' ? '60px' : '70px',
-                                color: '#FFFFFF'
-                            }}>{currentLang === 'zh-TW' ? '返回結果' : 'Back'}</button>
-                            <button onClick={restartQuiz} style={{
-                                width: currentLang === 'en' ? '480px' : '420px',
-                                height: '123px',
-                                background: '#B8860B',
-                                borderRadius: '25px',
-                                border: 'none',
-                                fontFamily: "'Inter', sans-serif",
-                                fontWeight: 700,
-                                fontSize: currentLang === 'en' ? '60px' : '70px',
-                                color: '#FFFFFF'
-                            }}>{currentLang === 'zh-TW' ? '重新開始' : 'Restart'}</button>
-                        </div>
+                        <div style={{ fontSize: '60px', color: '#B8860B', marginBottom: '150px' }}>@sunshineatcuhk_osa_wacc</div>
+                        <button onClick={restartQuiz} style={{ width: '800px', height: '180px', borderRadius: '30px', border: 'none', background: '#B8860B', color: '#FFF', fontSize: '70px', fontWeight: 700 }}>{t.result.restart}</button>
                     </div>
                 )}
+
+                {/* Language Switcher */}
+                <div style={{ position: 'absolute', bottom: '80px', right: '80px', display: 'flex', gap: '30px' }}>
+                    <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: currentLang === 'zh-TW' ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px', border: 'none' }}>繁體</button>
+                    <button onClick={() => setCurrentLang('en')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: currentLang === 'en' ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px', border: 'none' }}>English</button>
+                </div>
             </div>
         </div>
     );
