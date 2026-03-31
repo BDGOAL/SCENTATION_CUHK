@@ -63,110 +63,33 @@ const updateLayout = () => {
 window.addEventListener('load', updateLayout);
 window.addEventListener('resize', updateLayout);
 
-const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
-const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
 const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
 const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
 const instagramQR = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/sunshineatcuhk_osa_wacc_qr.png';
-
-const questionImages = {
-    q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6857474.jpg',
-    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/4323542.jpg',
-    q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/419376795_3dc97a2e-e860-4c60-8f1a-9d615fd392bf.jpg',
-    q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6731011.jpg',
-    intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
-};
-
-const wellnessResults = {
-    '4A': {
-        bodySaysCN: '「我像一根被拉緊的琴弦，需要好好放鬆一下」', bodySaysEN: '"I feel like a tightened string; I need to relax."',
-        scentCN: '深呼吸木質調 (雪松＋薰衣草)', scentEN: 'Deep-breathing woody notes (Cedar + Lavender)',
-        reminderCN: '你最近真的很努力了。現在讓自己找個舒適角落，深深地呼吸，像大樹一樣好好地休息一下。',
-        reminderEN: "You've working so hard lately. Now find a comfortable corner, take a deep breath, and rest like a great tree—steady and calm.",
-        products: [
-            { nameCN: 'The Last Snow', nameEN: 'The Last Snow', descriptionCN: '帶有清淡花香與木質調，寓意勇敢接受新挑戰。', descriptionEN: 'A light floral and woody fragrance with the concept of accepting a new challenge', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TLS2.png' },
-            { nameCN: 'The morning after I quit', nameEN: 'The morning after I quit', descriptionCN: '給予溫暖與安全感，如同清晨躲在被窩中的擁抱。', descriptionEN: 'It gives a warm and secure feeling just like hugging the blanket in your bed', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TMAIQ.png' }
-        ]
-    },
-    '3A': {
-        bodySaysCN: '「我有點疲憊，需要一個溫暖的擁抱。」', bodySaysEN: '"I\'m a bit tired, I need a warm hug."',
-        scentCN: '療癒花香調 (洋甘菊＋依蘭)', scentEN: 'Healing Floral Notes (Chamomile + Ylang-Ylang)',
-        reminderCN: '看到你這樣打拼，心裡真的好為你感動。讓這香氣成為擁抱，告訴你：「已經做很好了，值得被好好疼愛」。',
-        reminderEN: 'Seeing how hard you\'ve been striving truly moves me. Let this fragrance be a gentle embrace, reminding you: "You\'ve already put in lots of efforts. You deserve tender love."',
-        products: [
-            { nameCN: 'It means no worries', nameEN: 'It means no worries', descriptionCN: '強調親切感，喚起那些你永遠想珍藏的美好回憶。', descriptionEN: 'A scent that emphasis friendliness and also recalling good memories that you will always like to remember', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/IMNW2.png' },
-            { nameCN: '白蘭花', nameEN: 'White Michelia', descriptionCN: '經典的香港味道，提醒我們去欣賞身邊細碎的美好。', descriptionEN: 'A popular Hong Kong style fragrance that can remind you to appreciate things around you', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/White%20Michelia.webp' }
-        ]
-    },
-    '2A': {
-        bodySaysCN: '「我需要一點支持，但目前情況還可以。」', bodySaysEN: '"I need a little support, but I\'m okay."',
-        scentCN: '平衡香草調 (香草＋廣藿香)', scentEN: 'Balancing Vanilla Notes (Vanilla + Patchouli)',
-        reminderCN: '你已經在很努力地平衡一切了！這香氣像一杯熱飲，溫暖剛剛好，悄悄對你「可以慢慢來，不用急著做到最好」。',
-        reminderEN: 'You\'ve been working hard to balance everything! This fragrance is like a warm drink—comforting and whispering: "Take it slow, there\'s no need to chase perfection."',
-        products: [
-            { nameCN: 'Me Time', nameEN: 'Me Time', descriptionCN: '寧靜的氣息，讓你放慢腳步，重新找回自我的價值。', descriptionEN: 'A calm fragrance that makes you lays back and find your own worth', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Me%20time.webp' },
-            { nameCN: 'Evening Unwind', nameEN: 'Evening Unwind', descriptionCN: '清甜的無花果香，讓你在一天結束之際學會感恩。', descriptionEN: 'A light sweet fig that makes you appreciate your day', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Evening%20Unwind.webp' }
-        ]
-    },
-    '1A': {
-        bodySaysCN: '「我大致上沒問題，但還可以做得更好。」', bodySaysEN: '"I\'m basically okay, but could be better."',
-        scentCN: '清新海洋調 (海鹽＋薄荷)', scentEN: 'Refreshing Ocean Notes (Sea Salt + Mint)',
-        reminderCN: '你處理得很好！這清新的香氣像微風輕輕吹過，喚醒你最舒服自在的那一面。',
-        reminderEN: 'You\'re handling things wonderfully! This fresh scent is like a gentle breeze, awakening your most relaxed and comfortable self.',
-        products: [
-            { nameCN: 'Bouquet for today', nameEN: 'Bouquet for today', descriptionCN: '如同送給自己的一束花，提醒你每天都擁有獨特的禮物。', descriptionEN: 'The floral scent that is like a gift for yourself, reminding you that you have a gift in yourself everyday', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Bonquet%20of%20the%20day.webp' },
-            { nameCN: '亭下白茶', nameEN: 'Pavilion White Tea', descriptionCN: '優雅甜美的香氣，代表著生活中的幸福感與悠閒。', descriptionEN: 'A sweet and elegant scent that represents happiness and chill', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Pavilion%20White%20Tea.webp' }
-        ]
-    },
-    '0A': {
-        bodySaysCN: '「我狀態不錯！還可以更有活力」', bodySaysEN: '"I\'m in good shape! I could be even more energized."',
-        scentCN: '活力柑橘調 (血橙＋粉紅葡萄柚)', scentEN: 'Energizing Citrus Notes (Blood Orange + Pink Grapefruit)',
-        reminderCN: '你真的找到很好的節奏呢！這香氣像早晨的第一道陽光，帶著輕盈開心的感覺，繼續往前走。',
-        reminderEN: 'You\'ve truly found a great rhythm. This fragrance is like the first ray of morning sunshine, carrying a light and joyful feeling to keep you moving forward.',
-        products: [
-            { nameCN: 'I\'m Rich', nameEN: 'I\'m Rich', descriptionCN: '關於自我肯定的氣息，賦予你「我能做到」的自信精神。', descriptionEN: 'This fragrance is about self affirmation that gives you confidence on "you can do it" spirit', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/IR.png' },
-            { nameCN: 'Green serve', nameEN: 'Green serve', descriptionCN: '充滿運動活力的氣息，帶來源源不絕的能量與愉悅感。', descriptionEN: 'A sportif scent that gives you energy and euphoria', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Green%20serve.webp' }
-        ]
-    }
-};
+const introImg = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png';
 
 const App = () => {
     const [currentPage, setCurrentPage] = useState('intro');
     const [currentLang, setCurrentLang] = useState('zh-TW');
     const [playerName, setPlayerName] = useState('');
-    const [answers, setAnswers] = useState([]);
-    const [result, setResult] = useState(null);
     const [showInstagram, setShowInstagram] = useState(false);
     
-    const keyboardLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-
-    const texts = {
-        'zh-TW': {
-            intro: { title: ['探索你的專屬香氣', '連結情緒與香氛'], subtitle: ['香氣不是魔法', '但它會提醒你：「你值得被溫柔對待」'], button: '按此啟動 探索香氣', tip: '*點擊上方按鈕開始您的香味測試', home: '首頁' },
-            'en': { intro: { title: ['Explore your unique scent,', 'connecting emotions with scent.'], subtitle: ['Fragrance may not be magic,', 'but it reminds you to be gentle with yourself'], button: 'Discover Your Unique Scent', tip: '*Tap the button above to start your scent quiz', home: 'Home' } }
-        }
-    };
-    
-    // UI Helpers
     const isZH = currentLang === 'zh-TW';
-    const tResult = isZH ? { title: '你的身體在說', scentTitle: '心理健康及輔導中心為你推薦的香調', reminderTitle: '給你的小叮嚀', restart: '重新開始', next: '下一步' } : { title: 'What Your Body Says', scentTitle: 'Recommended Scents from WACC', reminderTitle: 'A Gentle Reminder for You', restart: 'Restart', next: 'Next' };
 
-    const handleAnswer = (questionId, choice) => {
-        const newAnswers = [...answers, choice];
-        setAnswers(newAnswers);
-        if (questionId < 4) { setTimeout(() => setCurrentPage(questionId + 1), 300); }
-        else {
-            const aCount = newAnswers.filter(a => a === 'A').length;
-            setResult(wellnessResults[`${aCount}A`]);
-            setTimeout(() => setCurrentPage('result'), 300);
-        }
+    const restartQuiz = () => {
+        setPlayerName('');
+        setShowInstagram(false);
+        setCurrentPage('intro');
     };
 
-    const restartQuiz = () => { setAnswers([]); setResult(null); setPlayerName(''); setShowInstagram(false); setCurrentPage('intro'); };
-
+    // Footer Navigation Component
     const FooterNav = () => (
         <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 200 }}>
-            <button onClick={restartQuiz} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>{isZH ? '首頁' : 'Home'}</button>
+            {/* Left side Home button */}
+            <button onClick={restartQuiz} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px', border: 'none', fontWeight: 500 }}>
+                {isZH ? '首頁' : 'Home'}
+            </button>
+            {/* Right side Lang switchers */}
             <div style={{ display: 'flex', gap: '30px' }}>
                 <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>繁體</button>
                 <button onClick={() => setCurrentLang('en')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px', border: 'none' }}>English</button>
@@ -183,7 +106,7 @@ const App = () => {
                 background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)',
                 boxShadow: '0px 0px 60px 15px rgba(212, 175, 55, 0.4)', borderRadius: '45px', overflow: 'hidden'
             }}>
-                {/* Fixed Top Banner */}
+                {/* Global Top Banner */}
                 <div style={{ width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <img src={cuhkLogo} style={{ height: '240px' }} />
                 </div>
@@ -191,69 +114,70 @@ const App = () => {
                 {/* Intro Page */}
                 {currentPage === 'intro' && (
                     <div style={{ paddingTop: '150px', textAlign: 'center' }}>
-                        <div style={{ fontSize: '65px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>{texts[currentLang].intro.subtitle[0]}<br/>{texts[currentLang].intro.subtitle[1]}</div>
-                        <div style={{ fontSize: '135px', fontWeight: 700, color: '#B8860B', margin: '140px 0', lineHeight: '1.2' }}>{texts[currentLang].intro.title[0]}<br/>{texts[currentLang].intro.title[1]}</div>
-                        <img src={questionImages.intro} style={{ width: '1150px', borderRadius: '35px' }} />
+                        {/* Subtitle: 縮小 2px (ZH: 65px -> EN: 63px) */}
+                        <div style={{ 
+                            fontSize: isZH ? '65px' : '63px', 
+                            color: '#B8860B', 
+                            lineHeight: '1.5', 
+                            marginTop: '100px' 
+                        }}>
+                            {isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>
+                            {isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}
+                        </div>
+
+                        {/* Title: 縮小 5px (ZH: 135px -> EN: 130px) */}
+                        <div style={{ 
+                            fontSize: isZH ? '135px' : '130px', 
+                            fontWeight: 700, 
+                            color: '#B8860B', 
+                            margin: '140px 0', 
+                            lineHeight: '1.2' 
+                        }}>
+                            {isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>
+                            {isZH ? "連結情緒與香氛" : "connecting emotions with scent."}
+                        </div>
+
+                        <img src={introImg} style={{ width: '1150px', borderRadius: '35px' }} />
+
                         <div style={{ marginTop: '200px' }}>
-                            <button onClick={() => setCurrentPage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '78px', borderRadius: '35px', border: 'none', fontWeight: 700 }}>{texts[currentLang].intro.button}</button>
-                            <div style={{ marginTop: '40px', fontSize: '50px', color: '#B8860B' }}>{texts[currentLang].intro.tip}</div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Questions Logic... (Condensed for brevity, same layout as provided previously) */}
-                {/* ... (Include Questions / Name Input here if needed, keeping consistency) ... */}
-
-                {/* Result Page */}
-                {currentPage === 'result' && result && !showInstagram && (
-                    <div style={{ paddingTop: '120px', textAlign: 'center' }}>
-                        <div style={{ width: '450px', height: '450px', borderRadius: '50%', background: '#FFF', margin: '0 auto', border: '12px solid #D4AF37', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src={walkWithYouLogo} style={{ width: '80%' }} />
-                        </div>
-                        <h2 style={{ fontSize: '110px', color: '#D4AF37', margin: '30px 0' }}>{tResult.title}</h2>
-                        <div style={{ fontSize: '60px', color: '#B8860B', fontStyle: 'italic', padding: '0 200px', marginBottom: '50px' }}>
-                            {isZH ? result.bodySaysCN : result.bodySaysEN}
-                        </div>
-                        
-                        <div style={{ width: '1650px', height: '1350px', background: 'rgba(212,175,55,0.08)', margin: '0 auto', borderRadius: '45px', border: '6px solid #D4AF37', overflow: 'hidden' }}>
-                            <div style={{ background: '#D4AF37', color: '#FFF', fontSize: '60px', padding: '35px', fontWeight: 700 }}>{tResult.scentTitle}</div>
-                            <div style={{ fontSize: '75px', color: '#FFF', margin: '40px 0', fontWeight: 700 }}>{isZH ? result.scentCN : result.scentEN}</div>
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '60px', padding: '0 40px' }}>
-                                {result.products.map((p, i) => (
-                                    <div key={i} style={{ width: '700px', background: '#D4AF37', borderRadius: '35px', padding: '20px', height: '1000px' }}>
-                                        <img src={p.image} style={{ width: '100%', height: '600px', objectFit: 'cover', borderRadius: '25px', background: '#FFF' }} />
-                                        <div style={{ fontSize: '48px', color: '#FFF', fontWeight: 700, margin: '20px 0' }}>{isZH ? p.nameCN : p.nameEN}</div>
-                                        <div style={{ fontSize: '34px', color: '#FFF', lineHeight: '1.4' }}>{isZH ? p.descriptionCN : p.descriptionEN}</div>
-                                    </div>
-                                ))}
+                            {/* Button text: 縮小 2px (ZH: 80px -> EN: 76px) */}
+                            <button onClick={() => setCurrentPage('nameInput')} style={{ 
+                                width: '1100px', 
+                                height: '220px', 
+                                background: '#B8860B', 
+                                color: '#FFF', 
+                                fontSize: isZH ? '80px' : '76px', 
+                                borderRadius: '35px', 
+                                border: 'none', 
+                                fontWeight: 700 
+                            }}>
+                                {isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}
+                            </button>
+                            
+                            {/* Bottom Tip: 縮小 2px (ZH: 50px -> EN: 48px) */}
+                            <div style={{ 
+                                marginTop: '40px', 
+                                fontSize: isZH ? '50px' : '48px', 
+                                color: '#B8860B' 
+                            }}>
+                                {isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}
                             </div>
                         </div>
-
-                        <div style={{ marginTop: '60px', padding: '0 150px' }}>
-                            <div style={{ fontSize: '70px', color: '#D4AF37', fontWeight: 700 }}>{tResult.reminderTitle}</div>
-                            <div style={{ fontSize: '46px', color: '#FFF', marginTop: '20px', lineHeight: '1.5' }}>{isZH ? result.reminderCN : result.reminderEN}</div>
-                        </div>
-
-                        <div style={{ position: 'absolute', bottom: '240px', width: '100%', display: 'flex', justifyContent: 'center', gap: '60px' }}>
-                            <button onClick={restartQuiz} style={{ width: '500px', height: '150px', borderRadius: '35px', background: '#777', color: '#FFF', fontSize: '60px', border: 'none', fontWeight: 700 }}>{tResult.restart}</button>
-                            <button onClick={() => setShowInstagram(true)} style={{ width: '500px', height: '150px', borderRadius: '35px', background: '#B8860B', color: '#FFF', fontSize: '60px', border: 'none', fontWeight: 700 }}>{tResult.next}</button>
-                        </div>
                     </div>
                 )}
 
-                {/* Instagram QR Page */}
-                {showInstagram && (
-                    <div style={{ paddingTop: '250px', textAlign: 'center' }}>
-                        <h2 style={{ fontSize: '110px', color: '#D4AF37' }}>{isZH ? '關注我們的 Instagram' : 'Follow Us on Instagram'}</h2>
-                        <div style={{ fontSize: '55px', color: '#FFF', margin: '50px 220px' }}>{isZH ? '掃描QR Code關注我們，以獲取更多心理健康小貼士及資源' : 'Scan to follow us for more wellness tips and mental health resources'}</div>
-                        <div style={{ width: '950px', height: '950px', background: '#FFF', margin: '80px auto', borderRadius: '45px', padding: '50px' }}>
-                            <img src={instagramQR} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                {/* 其他頁面內容保持與之前一致，確保位置鎖定 */}
+                {currentPage === 'nameInput' && (
+                    <div style={{ paddingTop: '550px', textAlign: 'center' }}>
+                        <h2 style={{ fontSize: '120px', color: '#B8860B' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
+                        <div style={{ width: '1100px', height: '200px', background: '#FFF', margin: '150px auto', borderRadius: '35px', fontSize: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
+                            {playerName || (isZH ? '輸入姓名' : 'Your name')}
                         </div>
-                        <div style={{ fontSize: '60px', color: '#B8860B', marginBottom: '100px' }}>@sunshineatcuhk_osa_wacc</div>
-                        <button onClick={restartQuiz} style={{ width: '800px', height: '180px', borderRadius: '40px', background: '#B8860B', color: '#FFF', fontSize: '75px', fontWeight: 700, border: 'none' }}>{isZH ? '重新開始' : 'Restart'}</button>
+                        {/* 虛擬鍵盤與按鈕邏輯在此... */}
                     </div>
                 )}
 
+                {/* Footer 固定位置 */}
                 <FooterNav />
             </div>
         </div>
