@@ -12,62 +12,45 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 * { box-sizing: border-box; }
-body, html { margin: 0; padding: 0; background-color: #1A1A1A; width: 100%; height: 100%; overflow: hidden; }
-
-/* 螢幕主容器 */
-#screen { 
-    width: 2160px; height: 3840px; 
-    background-color: #1A1A1A; 
-    position: absolute; left: 50%; top: 50%; 
-    transform-origin: center center;
-    overflow: hidden;
-}
-
-/* 內容卡片容器 */
-#card {
-    position: absolute; width: 1900px; height: 3500px; 
-    left: 130px; top: 170px;
-    background: linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%);
-    boxShadow: 0px 0px 60px 15px rgba(212, 175, 55, 0.4); 
-    borderRadius: 45px; overflow: hidden;
-    z-index: 10;
-}
-
-/* 頂部固定 Logo */
-#banner {
-    position: absolute; top: 0; width: 100%; height: 320px; 
-    background: #FFF; display: flex; alignItems: center; justifyContent: center; z-index: 20;
-}
-
-#root { position: absolute; top: 320px; width: 100%; height: 3180px; z-index: 30; }
-
-button { cursor: pointer; border: none; outline: none; }
+body, html { margin: 0; padding: 0; background-color: #1A1A1A; width: 100%; height: 100%; -webkit-user-select: none; user-select: none; overflow: hidden; }
+#root { width: 2160px; height: 3840px; background-color: #1A1A1A; opacity: 0; transition: opacity 0.5s ease-in; }
+button { cursor: pointer; transition: opacity 0.1s; }
 button:active { opacity: 0.8; }
-#loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1A1A1A; color: #B8860B; display: flex; justify-content: center; align-items: center; font-size: 40px; z-index: 9999; }
+#loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1A1A1A; color: #B8860B; display: flex; justify-content: center; align-items: center; font-size: 40px; font-family: 'Inter', sans-serif; z-index: 9999; }
 </style>
 </head>
 <body>
-<div id="loading">Loading System...</div>
-
-<div id="screen">
-    <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" style="position:absolute; width:100%; height:100%; object-fit:cover;">
-    
-    <div id="card">
-        <div id="banner">
-            <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png" style="height:240px;">
-        </div>
-        <div id="root"></div>
-    </div>
-</div>
+<div id="loading"><div>Loading System...</div></div>
+<div id="root"></div>
 
 <script type="text/babel">
 const { useState, useEffect } = React;
 
+// 佈局引擎
+const updateLayout = () => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    const scale = Math.min(screenW / 2160, screenH / 3840);
+    root.style.position = 'absolute';
+    root.style.left = '50%';
+    root.style.top = '50%';
+    root.style.transformOrigin = 'center center';
+    root.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    root.style.opacity = 1;
+    document.getElementById('loading').style.display = 'none';
+};
+
+window.addEventListener('load', updateLayout);
+window.addEventListener('resize', updateLayout);
+
 // 資源路徑
-const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
-const instagramQR = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/sunshineatcuhk_osa_wacc_qr.png';
 const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
 const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
+const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
+const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
+const instagramQR = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/sunshineatcuhk_osa_wacc_qr.png';
 
 const questionImages = {
     q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6857474.jpg',
@@ -77,7 +60,7 @@ const questionImages = {
     intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
 };
 
-// ... ( wellnessResults 數據與之前一致，此處省略以保持簡潔，實際代碼應包含之) ...
+// --- 結果數據 ---
 const wellnessResults = {
     '4A': { bodySaysCN: '「我像一根被拉緊的琴弦，需要好好放鬆一下」', bodySaysEN: '"I feel like a tightened string; I need to relax."', scentCN: '深呼吸木質調 (雪松＋薰衣草)', scentEN: 'Deep-breathing woody notes (Cedar + Lavender)', reminderCN: '你最近真的很努力了。現在讓自己找個舒適角落，深深地呼吸，像大樹一樣好好地休息一下。', reminderEN: "You've working so hard lately. Now find a comfortable corner, take a deep breath, and rest like a great tree—steady and calm.", products: [{ nameCN: 'The Last Snow', descriptionCN: '帶有清淡花香與木質調，寓意勇敢接受新挑戰。', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TLS2.png' },{ nameCN: 'The morning after I quit', descriptionCN: '給予溫暖與安全感，如同清晨躲在被窩中的擁抱。', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/TMAIQ.png' }] },
     '3A': { bodySaysCN: '「我有點疲憊，需要一個溫暖的擁抱。」', bodySaysEN: '"I\'m a bit tired, I need a warm hug."', scentCN: '療癒花香調 (洋甘菊＋依蘭)', scentEN: 'Healing Floral Notes (Chamomile + Ylang-Ylang)', reminderCN: '看到你這樣打拼，心裡真的好為你感動。讓這香氣成為擁抱，告訴你：「已經做很好了，值得被好好疼愛」。', reminderEN: 'Seeing how hard you\'ve been striving truly moves me. Let this fragrance be a gentle embrace, reminding you: "You\'ve already put in lots of efforts. You deserve tender love."', products: [{ nameCN: 'It means no worries', descriptionCN: '強調親切感，喚起那些你永遠想珍藏的美好回憶。', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/IMNW2.png' },{ nameCN: '白蘭花', descriptionCN: '經典的香港味道，提醒我們去欣賞身邊細碎的美好。', image: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/White%20Michelia.webp' }] },
@@ -87,107 +70,170 @@ const wellnessResults = {
 };
 
 const App = () => {
-    const [page, setPage] = useState('intro');
-    const [lang, setLang] = useState('zh-TW');
+    const [currentPage, setCurrentPage] = useState('intro');
+    const [currentLang, setCurrentLang] = useState('zh-TW');
     const [playerName, setPlayerName] = useState('');
     const [answers, setAnswers] = useState([]);
-    const [showIG, setShowIG] = useState(false);
+    const [showInstagram, setShowInstagram] = useState(false);
 
-    const isZH = lang === 'zh-TW';
-
-    const handleAnswer = (ans) => {
-        const newAns = [...answers, ans];
-        setAnswers(newAns);
-        if (typeof page === 'number' && page < 4) setPage(page + 1);
-        else setPage('result');
+    const isZH = currentLang === 'zh-TW';
+    const t = isZH ? {
+        intro: { subtitle: ["香氣不是魔法", "但它會提醒你：「你值得被溫柔對待」"], title: ["探索你的專屬香氣", "連結情緒與香氛"], button: "按此啟動 探索香氣", tip: "*點擊上方按鈕開始您的香味測試" },
+        name: { title: "請輸入您的姓名", subtitle: "讓我們為您量身打造香氣體驗", start: "開始測試" },
+        qs: [
+            { title: '最近的壓力就像：', options: ['腦子裡像開了99個瀏覽分頁，不斷想著要溫習。', '有時候能放鬆，還撐得住！'] },
+            { title: '昨晚的睡眠狀態：', options: ['失眠，早上起來像喪屍一樣。', '睡得著，早上精神也不錯。'] },
+            { title: '此刻的心情：', options: ['有點低落，吃東西都沒味道。', '還是笑得出來。'] },
+            { title: '身體的能量水平：', options: ['肩膀和脖子痠痛，爬樓梯會喘氣。', '活力充沛，從CC走上本部都沒問題。'] }
+        ],
+        res: { bodyTitle: "你的身體在說", scentTitle: "心理健康及輔導中心為你推薦的香調", reminderTitle: "給你的小叮嚀", restart: "重新開始", next: "下一步" }
+    } : {
+        intro: { subtitle: ["Fragrance may not be magic,", "but it reminds you to be gentle with yourself"], title: ["Explore your unique scent,", "connecting emotions with scent."], button: "Discover Your Unique Scent", tip: "*Tap the button above to start your scent quiz" },
+        name: { title: "Enter Your Name", subtitle: "Let us tailor a scent experience just for you", start: "START" },
+        qs: [
+            { title: 'Recent stress feels like:', options: ['Brain running 99 tabs, can\'t stop thinking about studying', 'Still chill enough, holding up fine!'] },
+            { title: 'Sleep quality last night:', options: ['Insomnia, zombie mode in morning', 'Can sleep, morning energy good'] },
+            { title: 'Current mood status:', options: ['Feeling gray, food tastes blah', 'Still smiling at times'] },
+            { title: 'Physical energy level:', options: ['Neck hurts, stairs make me gasp', 'Full energy, can hike up campus hill'] }
+        ],
+        res: { bodyTitle: "What Your Body Says", scentTitle: "Recommended Scents from WACC", reminderTitle: "A Gentle Reminder for You", restart: "Restart", next: "Next" }
     };
 
-    const reset = () => { setAnswers([]); setPlayerName(''); setPage('intro'); setShowIG(false); };
+    const handleAnswer = (choice) => {
+        const newAns = [...answers, choice];
+        setAnswers(newAns);
+        if (typeof currentPage === 'number') {
+            if (currentPage < 4) setCurrentPage(currentPage + 1);
+            else setCurrentPage('result');
+        }
+    };
+
+    const restart = () => { setAnswers([]); setPlayerName(''); setShowInstagram(false); setCurrentPage('intro'); };
 
     return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', textAlign: 'center', paddingTop: '50px' }}>
+        <div style={{ position: 'relative', width: '2160px', height: '3840px', overflow: 'hidden' }}>
+            <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover' }} />
             
-            {page === 'intro' && (
-                <div>
-                    <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', marginTop: '100px' }}>{isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>{isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}</div>
-                    <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0' }}>{isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>{isZH ? "連結情緒與香氛" : "connecting emotions with scent."}</div>
-                    <img src={questionImages.intro} style={{ width: '1150px', borderRadius: '35px' }} />
-                    <button onClick={() => setPage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', marginTop: '180px', fontWeight: 700 }}>{isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}</button>
-                    <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>{isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}</div>
+            <div style={{ position: 'absolute', width: '1900px', height: '3500px', left: '130px', top: '170px', background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)', boxShadow: '0px 0px 60px 15px rgba(212, 175, 55, 0.4)', borderRadius: '45px', overflow: 'hidden' }}>
+                
+                {/* 頂部全寬 Banner */}
+                <div style={{ width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={cuhkLogo} style={{ height: '240px' }} />
                 </div>
-            )}
 
-            {page === 'nameInput' && (
-                <div>
-                    <h2 style={{ fontSize: '120px', color: '#B8860B', marginTop: '150px' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
-                    <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '100px auto', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>{playerName || (isZH ? '輸入姓名' : 'Your name')}</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', padding: '0 100px' }}>
-                        {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', background: '#333', color: '#FFF', border: '2px solid #B8860B' }}>{l}</button>)}
-                        <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', background: '#555', color: '#FFF', fontSize: '50px', borderRadius: '25px' }}>DELETE</button>
-                        <button onClick={() => setPage(1)} style={{ width: '380px', height: '145px', background: '#B8860B', color: '#FFF', fontSize: '50px', borderRadius: '25px', fontWeight: 700 }}>START</button>
+                {/* --- Intro 頁面 --- */}
+                {currentPage === 'intro' && (
+                    <div style={{ textAlign: 'center', paddingTop: '100px' }}>
+                        <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>{t.intro.subtitle[0]}<br/>{t.intro.subtitle[1]}</div>
+                        <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0' }}>{t.intro.title[0]}<br/>{t.intro.title[1]}</div>
+                        <img src={questionImages.intro} style={{ width: '1150px', borderRadius: '35px' }} />
+                        <button onClick={() => setCurrentPage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', marginTop: '200px', fontWeight: 700, border: 'none' }}>{t.intro.button}</button>
+                        <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>{t.intro.tip}</div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {typeof page === 'number' && (
-                <div>
-                    <div style={{ width: '1500px', height: '30px', background: '#333', borderRadius: '15px', margin: '50px auto 80px' }}><div style={{ width: `${page*25}%`, height: '100%', background: '#B8860B' }}></div></div>
-                    <img src={questionImages[`q${page}`]} style={{ height: '900px', objectFit: 'contain', marginBottom: '100px' }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '50px', alignItems: 'center' }}>
-                        {[0, 1].map(i => <button key={i} onClick={() => handleAnswer(i===0?'A':'B')} style={{ width: '1500px', minHeight: '220px', border: '5px solid #FFF', borderRadius: '35px', background: 'transparent', color: '#FFF', fontSize: '65px', padding: '40px', display: 'flex', alignItems: 'center' }}>
-                            <img src={i===0?iconA:iconB} style={{ width: '120px', marginRight: '40px' }} />
-                            <span style={{ textAlign: 'left' }}>{(isZH ? ["選項 A 的句子內容", "選項 B 的句子內容"] : ["Sentence for A", "Sentence for B"])[i]}</span>
-                        </button>)}
+                {/* --- 姓名輸入 --- */}
+                {currentPage === 'nameInput' && (
+                    <div style={{ textAlign: 'center', paddingTop: '150px' }}>
+                        <h2 style={{ fontSize: '120px', color: '#B8860B' }}>{t.name.title}</h2>
+                        <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '80px' }}>{t.name.subtitle}</div>
+                        <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '0 auto 100px', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>{playerName || (isZH ? '輸入姓名' : 'Your name')}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', padding: '0 100px' }}>
+                            {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', background: '#333', color: '#FFF', border: '2px solid #B8860B' }}>{l}</button>)}
+                            <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', background: '#555', color: '#FFF', fontSize: '50px', borderRadius: '25px', border: 'none' }}>DELETE</button>
+                            <button onClick={() => setCurrentPage(1)} style={{ width: '380px', height: '145px', background: '#B8860B', color: '#FFF', fontSize: '50px', borderRadius: '25px', fontWeight: 700, border: 'none' }}>{t.name.start}</button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {page === 'result' && !showIG && (
-                <div>
-                    <div style={{ width: '450px', height: '450px', borderRadius: '50%', background: '#FFF', border: '12px solid #D4AF37', margin: '0 auto' }}><img src={walkWithYouLogo} style={{ width: '80%', marginTop: '10%' }} /></div>
-                    <h2 style={{ fontSize: '110px', color: '#D4AF37', margin: '30px 0' }}>{isZH ? '你的身體在說' : 'What Your Body Says'}</h2>
-                    <div style={{ width: '1600px', background: 'rgba(212,175,55,0.1)', border: '5px solid #D4AF37', borderRadius: '40px', margin: '0 auto', padding: '50px' }}>
-                        <div style={{ fontSize: '70px', color: '#FFF' }}>{wellnessResults[`${answers.filter(a=>a==='A').length}A`].scentCN}</div>
+                {/* --- 問題頁面 --- */}
+                {typeof currentPage === 'number' && (
+                    <div style={{ textAlign: 'center', paddingTop: '150px' }}>
+                        <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '60px' }}>{isZH ? '請選擇一個最接近你目前狀況的句子：' : 'Choose the sentence that best fits you:'}</div>
+                        <div style={{ width: '1500px', height: '30px', background: '#333', borderRadius: '15px', margin: '0 auto 80px', overflow: 'hidden' }}>
+                            <div style={{ width: `${currentPage * 25}%`, height: '100%', background: '#B8860B' }}></div>
+                        </div>
+                        <h2 style={{ fontSize: '90px', color: '#B8860B', marginBottom: '80px' }}>{t.qs[currentPage-1].title}</h2>
+                        <img src={questionImages[`q${currentPage}`]} style={{ height: '900px', objectFit: 'contain', marginBottom: '100px' }} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '50px', alignItems: 'center' }}>
+                            {t.qs[currentPage-1].options.map((opt, i) => (
+                                <button key={i} onClick={() => handleAnswer(i===0?'A':'B')} style={{ width: '1500px', minHeight: '220px', border: '5px solid #FFF', borderRadius: '35px', background: 'transparent', color: '#FFF', fontSize: '65px', padding: '40px', display: 'flex', alignItems: 'center' }}>
+                                    <img src={i===0?iconA:iconB} style={{ width: '120px', marginRight: '40px' }} />
+                                    <span style={{ textAlign: 'left' }}>{opt}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                    <button onClick={() => setShowIG(true)} style={{ width: '500px', height: '150px', background: '#B8860B', color: '#FFF', fontSize: '60px', borderRadius: '35px', marginTop: '100px' }}>NEXT</button>
-                </div>
-            )}
+                )}
 
-            {showIG && (
-                <div style={{ paddingTop: '200px' }}>
-                    <h2 style={{ fontSize: '100px', color: '#D4AF37' }}>Follow Us</h2>
-                    <img src={instagramQR} style={{ width: '800px', background: '#FFF', padding: '40px', borderRadius: '40px' }} />
-                    <button onClick={reset} style={{ width: '800px', height: '180px', background: '#B8860B', color: '#FFF', fontSize: '70px', borderRadius: '40px', marginTop: '100px' }}>RESTART</button>
-                </div>
-            )}
+                {/* --- 結果頁面 (恢復原狀) --- */}
+                {currentPage === 'result' && !showInstagram && (
+                    <div style={{ textAlign: 'center', paddingTop: '120px' }}>
+                        <div style={{ width: '450px', height: '450px', borderRadius: '50%', background: '#FFF', border: '12px solid #D4AF37', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={walkWithYouLogo} style={{ width: '80%' }} />
+                        </div>
+                        <h2 style={{ fontSize: '110px', color: '#D4AF37', margin: '40px 0' }}>{t.res.bodyTitle}</h2>
+                        <div style={{ fontSize: '60px', color: '#B8860B', fontStyle: 'italic', padding: '0 200px', marginBottom: '60px' }}>
+                            {isZH ? wellnessResults[`${answers.filter(a=>a==='A').length}A`].bodySaysCN : wellnessResults[`${answers.filter(a=>a==='A').length}A`].bodySaysEN}
+                        </div>
+                        
+                        <div style={{ width: '1650px', background: 'rgba(212,175,55,0.08)', borderRadius: '45px', border: '6px solid #D4AF37', margin: '0 auto', overflow: 'hidden' }}>
+                            <div style={{ background: '#D4AF37', color: '#FFF', fontSize: '60px', padding: '40px', fontWeight: 700 }}>{t.res.scentTitle}</div>
+                            <div style={{ fontSize: '80px', color: '#FFF', margin: '50px 0', fontWeight: 700 }}>
+                                {isZH ? wellnessResults[`${answers.filter(a=>a==='A').length}A`].scentCN : wellnessResults[`${answers.filter(a=>a==='A').length}A`].scentEN}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '80px', padding: '0 60px 60px' }}>
+                                {wellnessResults[`${answers.filter(a=>a==='A').length}A`].products.map((p, i) => (
+                                    <div key={i} style={{ width: '680px', background: '#D4AF37', borderRadius: '35px', padding: '25px' }}>
+                                        <img src={p.image} style={{ width: '100%', height: '550px', objectFit: 'cover', borderRadius: '25px', background: '#FFF' }} />
+                                        <div style={{ fontSize: '50px', color: '#FFF', fontWeight: 700, margin: '20px 0' }}>{p.nameCN}</div>
+                                        <div style={{ fontSize: '36px', color: '#FFF', lineHeight: '1.4' }}>{p.descriptionCN}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
-            {/* 底部按鈕 */}
-            <div style={{ position: 'absolute', bottom: '-260px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between' }}>
-                <button onClick={reset} style={{ width: '220px', height: '100px', borderRadius: '20px', background: '#333', color: '#FFF', fontSize: '40px' }}>{isZH ? '首頁' : 'Home'}</button>
-                <div style={{ display: 'flex', gap: '30px' }}>
-                    <button onClick={() => setLang('zh-TW')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px' }}>繁體</button>
-                    <button onClick={() => setLang('en')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px' }}>English</button>
+                        <div style={{ marginTop: '80px', padding: '0 150px' }}>
+                            <div style={{ fontSize: '75px', color: '#D4AF37', fontWeight: 700 }}>{t.res.reminderTitle}</div>
+                            <div style={{ fontSize: '48px', color: '#FFF', marginTop: '30px', lineHeight: '1.5' }}>
+                                {isZH ? wellnessResults[`${answers.filter(a=>a==='A').length}A`].reminderCN : wellnessResults[`${answers.filter(a=>a==='A').length}A`].reminderEN}
+                            </div>
+                        </div>
+
+                        <div style={{ marginTop: '100px', display: 'flex', justifyContent: 'center', gap: '60px' }}>
+                            <button onClick={restart} style={{ width: '500px', height: '160px', borderRadius: '35px', background: '#777', color: '#FFF', fontSize: '65px', border: 'none' }}>{t.res.restart}</button>
+                            <button onClick={() => setShowInstagram(true)} style={{ width: '500px', height: '160px', borderRadius: '35px', background: '#B8860B', color: '#FFF', fontSize: '65px', border: 'none' }}>{t.res.next}</button>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- Instagram --- */}
+                {showInstagram && (
+                    <div style={{ textAlign: 'center', paddingTop: '500px' }}>
+                        <h2 style={{ fontSize: '110px', color: '#D4AF37' }}>{isZH ? '關注我們的 Instagram' : 'Follow Us on Instagram'}</h2>
+                        <div style={{ width: '900px', height: '900px', background: '#FFF', margin: '80px auto', borderRadius: '45px', padding: '50px', boxShadow: '0 0 50px rgba(212,175,55,0.5)' }}>
+                            <img src={instagramQR} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                        <div style={{ fontSize: '60px', color: '#B8860B', marginBottom: '150px' }}>@sunshineatcuhk_osa_wacc</div>
+                        <button onClick={restart} style={{ width: '800px', height: '200px', background: '#B8860B', color: '#FFF', fontSize: '80px', borderRadius: '40px', border: 'none' }}>{isZH ? '重新開始' : 'Restart'}</button>
+                    </div>
+                )}
+
+                {/* --- 底部導航 --- */}
+                <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between' }}>
+                    <button onClick={restart} style={{ width: '220px', height: '100px', borderRadius: '20px', background: '#333', color: '#FFF', fontSize: '40px', border: 'none' }}>{isZH ? '首頁' : 'Home'}</button>
+                    <div style={{ display: 'flex', gap: '30px' }}>
+                        <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px', border: 'none' }}>繁體</button>
+                        <button onClick={() => setCurrentLang('en')} style={{ width: '220px', height: '100px', borderRadius: '20px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '40px', border: 'none' }}>English</button>
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
 
-// 佈局初始化
-const initLayout = () => {
-    const screen = document.getElementById('screen');
-    const update = () => {
-        const scale = Math.min(window.innerWidth / 2160, window.innerHeight / 3840);
-        screen.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    };
-    window.addEventListener('resize', update);
-    update();
-    document.getElementById('loading').style.display = 'none';
-};
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-window.onload = initLayout;
 </script>
 </body>
 </html>
