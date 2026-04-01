@@ -16,7 +16,6 @@ body, html {
     margin: 0; padding: 0;
     background-color: #1A1A1A;
     width: 100%; height: 100%;
-    -webkit-user-select: none; user-select: none;
     overflow: hidden;
 }
 #root { 
@@ -24,7 +23,7 @@ body, html {
     background-color: #1A1A1A;
     opacity: 0; transition: opacity 0.5s ease-in;
 }
-button { cursor: pointer; transition: opacity 0.1s; border: none; }
+button { cursor: pointer; transition: opacity 0.1s; border: none; outline: none; }
 button:active { opacity: 0.8; }
 #loading {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -33,14 +32,18 @@ button:active { opacity: 0.8; }
     font-size: 40px; font-family: 'Inter', sans-serif;
     z-index: 9999;
 }
+/* 核心修正：所有頁面共用的容器，確保高度從 Banner 下方開始 */
 .page-container {
     position: absolute;
-    top: 320px;
+    top: 320px; /* Logo Banner 的高度 */
     left: 0;
     width: 100%;
-    height: 3180px; /* 扣除頂部 Banner 和底部 Footer */
-    overflow: hidden;
+    height: 3180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    padding-top: 50px;
 }
 </style>
 </head>
@@ -49,120 +52,173 @@ button:active { opacity: 0.8; }
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useCallback } = React;
 
-// 排版引擎
-const updateLayout = () => {
-    const root = document.getElementById('root');
-    if (!root) return;
-    const screenW = window.innerWidth;
-    const screenH = window.innerHeight;
-    const scale = Math.min(screenW / 2160, screenH / 3840);
-    root.style.position = 'absolute';
-    root.style.left = '50%';
-    root.style.top = '50%';
-    root.style.transformOrigin = 'center center';
-    root.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    root.style.opacity = 1;
-    document.getElementById('loading').style.display = 'none';
-};
-
-window.addEventListener('load', updateLayout);
-window.addEventListener('resize', updateLayout);
-
+// --- 配置數據 ---
 const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
 const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
 const instagramQR = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/sunshineatcuhk_osa_wacc_qr.png';
-const introImg = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png';
+const iconA = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/iconA.png';
+const iconB = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION/refs/heads/main/IconB.png';
+
+const questionImages = {
+    q1: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6857474.jpg',
+    q2: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/4323542.jpg',
+    q3: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/419376795_3dc97a2e-e860-4c60-8f1a-9d615fd392bf.jpg',
+    q4: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/6731011.jpg',
+    intro: 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Front-01.png',
+};
 
 const App = () => {
-    const [currentPage, setCurrentPage] = useState('intro');
+    const [currentPage, setCurrentPage] = useState('intro'); // 'intro', 'nameInput', 1, 2, 3, 4, 'result'
     const [currentLang, setCurrentLang] = useState('zh-TW');
     const [playerName, setPlayerName] = useState('');
+    const [answers, setAnswers] = useState([]);
     const [showInstagram, setShowInstagram] = useState(false);
-    
+
     const isZH = currentLang === 'zh-TW';
 
-    // 每次切換頁面時強製顯示根節點並置頂
+    // 佈局刷新
     useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [currentPage, showInstagram]);
+        const updateLayout = () => {
+            const root = document.getElementById('root');
+            const scale = Math.min(window.innerWidth / 2160, window.innerHeight / 3840);
+            root.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            root.style.left = '50%';
+            root.style.top = '50%';
+            root.style.position = 'absolute';
+            root.style.transformOrigin = 'center center';
+            root.style.opacity = 1;
+            document.getElementById('loading').style.display = 'none';
+        };
+        window.addEventListener('resize', updateLayout);
+        updateLayout();
+        return () => window.removeEventListener('resize', updateLayout);
+    }, []);
 
-    const changePage = (pageName) => {
-        setCurrentPage(pageName);
+    const handleNextPage = (ans) => {
+        const newAns = [...answers, ans];
+        setAnswers(newAns);
+        const next = typeof currentPage === 'number' ? currentPage + 1 : 1;
+        if (next > 4) setCurrentPage('result');
+        else setCurrentPage(next);
     };
 
-    const restartQuiz = () => {
+    const restart = () => {
+        setAnswers([]);
         setPlayerName('');
         setShowInstagram(false);
         setCurrentPage('intro');
     };
 
+    // --- 各頁面組件 ---
+
+    const IntroPage = () => (
+        <div className="page-container" key="intro">
+            <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>
+                {isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>{isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}
+            </div>
+            <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0', lineHeight: '1.2' }}>
+                {isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>{isZH ? "連結情緒與香氛" : "connecting emotions with scent."}
+            </div>
+            <img src={questionImages.intro} style={{ width: '1150px', borderRadius: '35px' }} />
+            <div style={{ marginTop: '200px' }}>
+                <button onClick={() => setCurrentPage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', fontWeight: 700 }}>
+                    {isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}
+                </button>
+                <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>
+                    {isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}
+                </div>
+            </div>
+        </div>
+    );
+
+    const NameInputPage = () => (
+        <div className="page-container" key="nameInput">
+            <h2 style={{ fontSize: isZH ? '120px' : '115px', color: '#B8860B', marginTop: '150px' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
+            <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '80px' }}>{isZH ? '讓我們為您量身打造香氣體驗' : 'Let us tailor a scent experience just for you'}</div>
+            <div style={{ width: '1000px', height: '180px', background: '#FFF', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333', margin: '0 auto 100px' }}>
+                {playerName || (isZH ? '輸入姓名' : 'Your name')}
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', padding: '0 100px' }}>
+                {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => (
+                    <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', background: '#333', color: '#FFF', border: '2px solid #B8860B' }}>{l}</button>
+                ))}
+                <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#555', color: '#FFF' }}>DELETE</button>
+                <button onClick={() => setCurrentPage(1)} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#B8860B', color: '#FFF', fontWeight: 700 }}>START</button>
+            </div>
+        </div>
+    );
+
+    const QuestionPage = () => {
+        const qIndex = currentPage - 1;
+        const questions = isZH ? [
+            { title: '最近的壓力就像：', options: ['腦子裡像開了99個瀏覽分頁，不斷想著要溫習。', '有時候能放鬆，還撐得住！'] },
+            { title: '昨晚的睡眠狀態：', options: ['失眠，早上起來像喪屍一樣。', '睡得著，早上精神也不錯。'] },
+            { title: '此刻的心情：', options: ['有點低落，吃東西都沒味道。', '還是笑得出來。'] },
+            { title: '身體的能量水平：', options: ['肩膀和脖子痠痛，爬樓梯會喘氣。', '活力充沛，從CC走上本部都沒問題。'] }
+        ] : [
+            { title: 'Recent stress feels like:', options: ['Brain running 99 tabs, can\'t stop thinking about studying', 'Still chill enough, holding up fine!'] },
+            { title: 'Sleep quality last night:', options: ['Insomnia, zombie mode in morning', 'Can sleep, morning energy good'] },
+            { title: 'Current mood status:', options: ['Feeling gray, food tastes blah', 'Still smiling at times'] },
+            { title: 'Physical energy level:', options: ['Neck hurts, stairs make me gasp', 'Full energy, can hike up campus hill'] }
+        ];
+
+        return (
+            <div className="page-container" key={`q${currentPage}`}>
+                <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '50px' }}>{isZH ? '請選擇一個最接近你目前狀況的句子：' : 'Choose the sentence that best fits you:'}</div>
+                <div style={{ width: '1500px', height: '30px', background: '#333', borderRadius: '15px', overflow: 'hidden', margin: '0 auto 80px' }}>
+                    <div style={{ width: `${currentPage * 25}%`, height: '100%', background: '#B8860B', transition: '0.3s' }}></div>
+                </div>
+                <h2 style={{ fontSize: '90px', color: '#B8860B', marginBottom: '80px' }}>{questions[qIndex].title}</h2>
+                <img src={questionImages[`q${currentPage}`]} style={{ height: '900px', objectFit: 'contain', marginBottom: '100px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '50px' }}>
+                    {questions[qIndex].options.map((opt, i) => (
+                        <button key={i} onClick={() => handleNextPage(i === 0 ? 'A' : 'B')} style={{ width: '1500px', minHeight: '220px', border: '5px solid #FFF', borderRadius: '35px', background: 'transparent', color: '#FFF', fontSize: '65px', padding: '40px', display: 'flex', alignItems: 'center' }}>
+                            <img src={i === 0 ? iconA : iconB} style={{ width: '120px', marginRight: '40px' }} />
+                            <span style={{ textAlign: 'left' }}>{opt}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    // --- 渲染邏輯 ---
     return (
         <div style={{ position: 'relative', width: '2160px', height: '3840px', overflow: 'hidden' }}>
             <img src="https://raw.githubusercontent.com/BDGOAL/SCENTATION/main/pattern.png" style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover' }} />
             
-            <div style={{
-                position: 'absolute', width: '1900px', height: '3500px', left: '130px', top: '170px',
-                background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)',
-                boxShadow: '0px 0px 60px 15px rgba(212, 175, 55, 0.4)', borderRadius: '45px', overflow: 'hidden'
-            }}>
+            <div style={{ position: 'absolute', width: '1900px', height: '3500px', left: '130px', top: '170px', background: 'linear-gradient(165.55deg, #1A1A1A 0%, #2B2B2B 100%)', boxShadow: '0px 0px 60px 15px rgba(212, 175, 55, 0.4)', borderRadius: '45px', overflow: 'hidden' }}>
+                
                 {/* 頂部 Banner */}
-                <div style={{ position: 'absolute', top: 0, width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+                <div style={{ width: '100%', height: '320px', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 0, zIndex: 500 }}>
                     <img src={cuhkLogo} style={{ height: '240px' }} />
                 </div>
 
-                {/* 頁面內容渲染區域 */}
-                <div className="page-container">
-                    {currentPage === 'intro' && (
-                        <div key="intro" style={{ paddingTop: '150px' }}>
-                            <div style={{ fontSize: isZH ? '65px' : '63px', color: '#B8860B', lineHeight: '1.5', marginTop: '100px' }}>
-                                {isZH ? "香氣不是魔法" : "Fragrance may not be magic,"}<br/>{isZH ? "但它會提醒你：「你值得被溫柔對待」" : "but it reminds you to be gentle with yourself"}
-                            </div>
-                            <div style={{ fontSize: isZH ? '135px' : '130px', fontWeight: 700, color: '#B8860B', margin: '140px 0', lineHeight: '1.2' }}>
-                                {isZH ? "探索你的專屬香氣" : "Explore your unique scent,"}<br/>{isZH ? "連結情緒與香氛" : "connecting emotions with scent."}
-                            </div>
-                            <img src={introImg} style={{ width: '1150px', borderRadius: '35px' }} />
-                            <div style={{ marginTop: '200px' }}>
-                                <button onClick={() => changePage('nameInput')} style={{ width: '1100px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: isZH ? '80px' : '76px', borderRadius: '35px', fontWeight: 700 }}>
-                                    {isZH ? "按此啟動 探索香氣" : "Discover Your Unique Scent"}
-                                </button>
-                                <div style={{ marginTop: '40px', fontSize: isZH ? '50px' : '48px', color: '#B8860B' }}>
-                                    {isZH ? "*點擊上方按鈕開始您的香味測試" : "*Tap the button above to start your scent quiz"}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {currentPage === 'nameInput' && (
-                        <div key="nameInput" style={{ paddingTop: '150px' }}>
-                            <h2 style={{ fontSize: isZH ? '120px' : '115px', color: '#B8860B', marginTop: '150px' }}>{isZH ? '請輸入您的姓名' : 'Enter Your Name'}</h2>
-                            <div style={{ fontSize: '60px', color: '#FFF', marginBottom: '80px' }}>{isZH ? '讓我們為您量身打造香氣體驗' : 'Let us tailor a scent experience just for you'}</div>
-                            <div style={{ width: '1000px', height: '180px', background: '#FFF', margin: '0 auto', borderRadius: '30px', fontSize: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333' }}>
-                                {playerName || (isZH ? '輸入姓名' : 'Your name')}
-                            </div>
-                            {/* 鍵盤代碼與之前一致... */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', marginTop: '100px', padding: '0 100px' }}>
-                                {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => (
-                                    <button key={l} onClick={() => setPlayerName(p => (p+l).slice(0,10))} style={{ width: '145px', height: '145px', fontSize: '60px', borderRadius: '25px', background: '#333', color: '#FFF', border: '2px solid #B8860B' }}>{l}</button>
-                                ))}
-                                <button onClick={() => setPlayerName(p => p.slice(0, -1))} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#555', color: '#FFF' }}>DELETE</button>
-                                <button onClick={() => changePage(1)} style={{ width: '380px', height: '145px', fontSize: '50px', borderRadius: '25px', background: '#B8860B', color: '#FFF', fontWeight: 700 }}>START</button>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {/* 其他頁面按此結構類推，確保加上 key 屬性以幫助 React 識別組件更新 */}
-                </div>
+                {/* 路由切換 */}
+                {currentPage === 'intro' && <IntroPage />}
+                {currentPage === 'nameInput' && <NameInputPage />}
+                {typeof currentPage === 'number' && <QuestionPage />}
+                {currentPage === 'result' && !showInstagram && <div className="page-container"><h2>結果計算中...</h2><button onClick={() => setShowInstagram(true)} style={{padding: '50px', background: '#B8860B', color: '#FFF', fontSize: '60px', borderRadius: '20px'}}>查看 IG</button></div>}
+                
+                {showInstagram && (
+                    <div className="page-container">
+                         <h2 style={{ fontSize: '110px', color: '#D4AF37' }}>{isZH ? '關注我們的 Instagram' : 'Follow Us on Instagram'}</h2>
+                         <img src={instagramQR} style={{ width: '800px', background: '#FFF', padding: '50px', borderRadius: '40px', margin: '100px auto' }} />
+                         <button onClick={restart} style={{ width: '800px', height: '180px', background: '#B8860B', color: '#FFF', fontSize: '70px', borderRadius: '40px' }}>{isZH ? '重新開始' : 'Restart'}</button>
+                    </div>
+                )}
 
                 {/* 底部導航 */}
-                <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 200 }}>
-                    <button onClick={restartQuiz} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px' }}>{isZH ? '首頁' : 'Home'}</button>
+                <div style={{ position: 'absolute', bottom: '60px', width: '100%', padding: '0 100px', display: 'flex', justifyContent: 'space-between', zIndex: 1000 }}>
+                    <button onClick={restart} style={{ width: '200px', height: '90px', borderRadius: '15px', background: '#333', color: '#FFF', fontSize: '38px' }}>{isZH ? '首頁' : 'Home'}</button>
                     <div style={{ display: 'flex', gap: '30px' }}>
                         <button onClick={() => setCurrentLang('zh-TW')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px' }}>繁體</button>
                         <button onClick={() => setCurrentLang('en')} style={{ width: '200px', height: '90px', borderRadius: '15px', background: !isZH ? '#B8860B' : '#333', color: '#FFF', fontSize: '38px' }}>English</button>
                     </div>
                 </div>
+
             </div>
         </div>
     );
