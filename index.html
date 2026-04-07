@@ -11,9 +11,27 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-* { box-sizing: border-box; }
-body, html { margin: 0; padding: 0; background-color: #1A1A1A; width: 100%; height: 100%; -webkit-user-select: none; user-select: none; overflow: hidden; }
-#root { width: 2160px; height: 3840px; background-color: #1A1A1A; opacity: 0; transition: opacity 0.5s ease-in; position: absolute; left: 50%; top: 50%; transform-origin: center center; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body, html { 
+    margin: 0; padding: 0; 
+    background-color: #1A1A1A; 
+    width: 100%; height: 100%; 
+    overflow: hidden; 
+    /* 防禦修正 2：禁止任何滑動行為，防止用家把網頁 scroll 走 */
+    touch-action: none; 
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#root { 
+    width: 2160px; height: 3840px; 
+    background-color: #1A1A1A; 
+    opacity: 0; transition: opacity 0.5s ease-in; 
+    position: absolute; left: 50%; top: 50%; 
+    transform-origin: center center; 
+}
+
 button { cursor: pointer; transition: opacity 0.1s; border: none; outline: none; }
 button:active { opacity: 0.8; }
 #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1A1A1A; color: #B8860B; display: flex; justify-content: center; align-items: center; font-size: 40px; font-family: 'Inter', sans-serif; z-index: 9999; }
@@ -24,7 +42,7 @@ button:active { opacity: 0.8; }
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
 const updateLayout = () => {
     const root = document.getElementById('root');
@@ -37,6 +55,9 @@ const updateLayout = () => {
 
 window.addEventListener('load', updateLayout);
 window.addEventListener('resize', updateLayout);
+
+// 防禦修正 3：禁用右鍵選單 (防止長按彈出瀏覽器菜單)
+document.oncontextmenu = (e) => e.preventDefault();
 
 const cuhkLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/WACC_logo-01.png';
 const walkWithYouLogo = 'https://raw.githubusercontent.com/BDGOAL/SCENTATION_CUHK/refs/heads/main/Walk%20with%20You_Logo.png';
@@ -55,10 +76,8 @@ const pageAssets = {
 
 const wellnessResults = {
     '4A': { 
-        bodySaysCN: '「我像一根被拉緊的琴弦，\n需要好好放鬆一下」', 
-        bodySaysEN: '"I feel like a tightened string;\nI need to relax."', 
-        scentCN: '深呼吸木質調\n(雪松＋薰衣草)', 
-        scentEN: 'Deep-breathing woody notes\n(Cedar + Lavender)', 
+        bodySaysCN: '「我像一根被拉緊的琴弦，\n需要好好放鬆一下」', bodySaysEN: '"I feel like a tightened string;\nI need to relax."', 
+        scentCN: '深呼吸木質調\n(雪松＋薰衣草)', scentEN: 'Deep-breathing woody notes\n(Cedar + Lavender)', 
         reminderCN: '你最近真的很努力了。現在讓自己找個舒適角落，\n深深地呼吸，像大樹一樣好好地休息一下。', 
         reminderEN: "You've working so hard lately. \nNow find a comfortable corner, take a deep breath, \nand rest like a great tree—steady and calm.", 
         products: [
@@ -67,10 +86,8 @@ const wellnessResults = {
         ] 
     },
     '3A': { 
-        bodySaysCN: '「我有點疲憊，需要一個溫暖的擁抱。」', 
-        bodySaysEN: '"I\'m a bit tired, I need a warm hug."', 
-        scentCN: '療癒花香調\n(洋甘菊＋依蘭)', 
-        scentEN: 'Healing Floral Notes\n(Chamomile + Ylang-Ylang)', 
+        bodySaysCN: '「我有點疲憊，需要一個溫暖的擁抱。」', bodySaysEN: '"I\'m a bit tired, I need a warm hug."', 
+        scentCN: '療癒花香調\n(洋甘菊＋依蘭)', scentEN: 'Healing Floral Notes\n(Chamomile + Ylang-Ylang)', 
         reminderCN: '看到你這樣打拼，心裡真的好為你感動。\n讓這香氣成為擁抱，告訴你：「已經做很好了，值得被好好疼愛」。', 
         reminderEN: 'Seeing how hard you\'ve been striving truly moves me. \nLet this fragrance be a gentle embrace, reminding you: \n"You\'ve already put in lots of efforts. You deserve tender love."', 
         products: [
@@ -79,10 +96,8 @@ const wellnessResults = {
         ] 
     },
     '2A': { 
-        bodySaysCN: '「我需要一點支持，但目前情況還可以。」', 
-        bodySaysEN: '"I need a little support, but I\'m okay."', 
-        scentCN: '平衡香草調\n(香草＋廣藿香)', 
-        scentEN: 'Balancing Vanilla Notes\n(Vanilla + Patchouli)', 
+        bodySaysCN: '「我需要一點支持，但目前情況還可以。」', bodySaysEN: '"I need a little support, but I\'m okay."', 
+        scentCN: '平衡香草調\n(香草＋廣藿香)', scentEN: 'Balancing Vanilla Notes\n(Vanilla + Patchouli)', 
         reminderCN: '你已經在很努力地平衡一切了！\n這香氣像一杯熱飲，溫暖剛剛好，\n悄悄對你「可以慢慢來，不用急著做到最好」。', 
         reminderEN: 'You\'ve been working hard to balance everything! \nThis fragrance is like a warm drink—comforting and whispering: \n"Take it slow, there\'s no need to chase perfection."', 
         products: [
@@ -91,10 +106,8 @@ const wellnessResults = {
         ] 
     },
     '1A': { 
-        bodySaysCN: '「我大致上沒問題，但還可以做得更好。」', 
-        bodySaysEN: '"I\'m basically okay, but could be better."', 
-        scentCN: '清新海洋調\n(海鹽＋薄荷)', 
-        scentEN: 'Refreshing Ocean Notes\n(Sea Salt + Mint)', 
+        bodySaysCN: '「我大致上沒問題，但還可以做得更好。」', bodySaysEN: '"I\'m basically okay, but could be better."', 
+        scentCN: '清新海洋調\n(海鹽＋薄荷)', scentEN: 'Refreshing Ocean Notes\n(Sea Salt + Mint)', 
         reminderCN: '你處理得很好！\n這清新的香氣像微風輕輕吹過，\n喚醒你最舒服自在的那一面。', 
         reminderEN: 'You\'re handling things wonderfully! \nThis fresh scent is like a gentle breeze, \nawakening your most relaxed and comfortable self.', 
         products: [
@@ -103,10 +116,8 @@ const wellnessResults = {
         ] 
     },
     '0A': { 
-        bodySaysCN: '「我狀態不錯！還可以更有活力」', 
-        bodySaysEN: '"I\'m in good shape! I could be even more energized."', 
-        scentCN: '活力柑橘調\n(血橙＋粉紅葡萄柚)', 
-        scentEN: 'Energizing Citrus Notes\n(Blood Orange + Pink Grapefruit)', 
+        bodySaysCN: '「我狀態不錯！還可以更有活力」', bodySaysEN: '"I\'m in good shape! I could be even more energized."', 
+        scentCN: '活力柑橘調\n(血橙＋粉紅葡萄柚)', scentEN: 'Energizing Citrus Notes\n(Blood Orange + Pink Grapefruit)', 
         reminderCN: '你真的找到很好的節奏呢！\n這香氣像早晨的第一道陽光，\n帶著輕盈開心的感覺，繼續往前走。', 
         reminderEN: 'You\'ve truly found a great rhythm. \nThis fragrance is like the first ray of morning sunshine, \ncarrying a light and joyful feeling to keep you moving forward.', 
         products: [
@@ -122,10 +133,35 @@ const App = () => {
     const [playerName, setPlayerName] = useState('');
     const [answers, setAnswers] = useState([]);
     const [showInstagram, setShowInstagram] = useState(false);
+    const timerRef = useRef(null);
 
     const isZH = currentLang === 'zh-TW';
+
+    // 防禦修正 4：自動重置計時器 (若 60 秒沒人觸控螢幕，自動回首頁)
+    const resetTimer = () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        if (currentPage === 'intro') return; // 如果已經在首頁就不計時
+
+        timerRef.current = setTimeout(() => {
+            restart();
+        }, 60000); // 60,000 毫秒 = 60 秒
+    };
+
+    useEffect(() => {
+        // 在所有頁面監聽觸碰或點擊事件
+        window.addEventListener('touchstart', resetTimer);
+        window.addEventListener('mousedown', resetTimer);
+        resetTimer();
+
+        return () => {
+            window.removeEventListener('touchstart', resetTimer);
+            window.removeEventListener('mousedown', resetTimer);
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, [currentPage, showInstagram]);
+
     const t = isZH ? {
-        intro: { title: "封面", button: "啟動" },
+        intro: { title: "封面" },
         name: { title: "請輸入您的姓名", subtitle: "讓我們為您量身打造香氣體驗", placeholder: "輸入姓名", start: "開始測試" },
         qs: [
             { title: '最近的壓力就像：', options: ['腦子裡像開了99個瀏覽分頁，\n不斷想著要溫習。', '有時候能放鬆，還撐得住！'] },
@@ -135,7 +171,7 @@ const App = () => {
         ],
         res: { bodyTitle: "你的身體在說", scentTitle: "心理健康及輔導中心為你推薦的香調", reminderTitle: "給你的小叮嚀", restart: "重新開始", next: "下一步" }
     } : {
-        intro: { title: "Cover", button: "Start" },
+        intro: { title: "Cover" },
         name: { title: "Enter Your Name", subtitle: "Let us tailor a scent experience just for you", placeholder: "Your name", start: "START" },
         qs: [
             { title: 'Recent stress feels like:', options: ['Brain running 99 tabs,\ncan\'t stop thinking about studying', 'Still chill enough, holding up fine!'] },
@@ -256,11 +292,11 @@ const App = () => {
                 {showInstagram && (
                     <div style={{ textAlign: 'center', paddingTop: '500px' }}>
                         <h2 style={{ fontSize: '110px', color: '#D4AF37' }}>{isZH ? '關注我們的 Instagram' : 'Follow Us on Instagram'}</h2>
-                        <div style={{ width: '900px', height: '900px', background: '#FFF', margin: '80px auto', borderRadius: '45px', padding: '50px', boxShadow: '0 0 50px rgba(212, 175, 55, 0.5)' }}>
+                        <div style={{ width: '900px', height: '900px', background: '#FFF', margin: '80px auto', borderRadius: '45px', padding: '50px', boxShadow: '0px 0px 50px rgba(212, 175, 55, 0.5)' }}>
                             <img src={instagramQR} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                         <div style={{ fontSize: '60px', color: '#B8860B', marginBottom: '150px' }}>@sunshineatcuhk_osa_wacc</div>
-                        <button onClick={restart} style={{ width: '800px', height: '200px', background: '#B8860B', color: '#FFF', fontSize: '80px', borderRadius: '40px' }}>{isZH ? '重新開始' : 'Restart'}</button>
+                        <button onClick={restart} style={{ width: '800px', height: '220px', background: '#B8860B', color: '#FFF', fontSize: '80px', borderRadius: '40px' }}>{isZH ? '重新開始' : 'Restart'}</button>
                     </div>
                 )}
 
